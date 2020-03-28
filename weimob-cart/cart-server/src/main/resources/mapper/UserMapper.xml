@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="UserInfoDo">
+    <resultMap id="BaseResultMap" type="UserInfoDo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="phone_number" property="phoneNumber" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, user_name, phone_number, password, create_date,update_date
+  </sql>
+    <sql id="criteria">
+        <where>
+            <if test="phoneNumber != null ">AND phone_number=#{phoneNumber}</if>
+            <if test="password != null ">AND password=#{password}</if>
+        </where>
+    </sql>
+    <sql id="table_name">user</sql>
+    <select id="findByUniqueIndex" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        <include refid="table_name"/>
+        <include refid="criteria" />
+    </select>
+</mapper>

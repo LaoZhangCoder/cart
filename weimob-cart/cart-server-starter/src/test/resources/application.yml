@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    include: pro
+  datasource:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:cartsystem}?useUnicode=true&characterEncoding=UTF8&useSSL=false&autoReconnect=true&allowMultiQueries=true&serverTimezone=UTC
+      username: ${MYSQL_USERNAME:root}
+      password: ${MYSQL_PASSWORD:6112118}
+      druid:
+        enable: true
+        initial-size: 60
+        max-active: 60
+        max-wait: 300000
+        filters: stat
+        validation-query: SELECT 1
+        test-while-idle: true
+mybatis:
+  mapper-locations: classpath*:mapper/*Mapper.xml
+  type-aliases-package: weimob.cart.server.domain.model
+logging:
+  path: /logs

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="GoodsDo">
+    <resultMap id="BaseResultMap" type="GoodsDo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="goods_name" property="goodsName" jdbcType="VARCHAR"/>
+        <result column="goods_price" property="goodsPrice" jdbcType="DECIMAL"/>
+        <result column="goods_num" property="goodsNum" jdbcType="INTEGER"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, goods_name, goods_price, goods_num, create_date,update_date
+  </sql>
+    <sql id="criteria">
+        <where>
+        </where>
+    </sql>
+    <sql id="table_name">goods</sql>
+    <select id="list" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        <include refid="table_name"/>
+    </select>
+</mapper>
