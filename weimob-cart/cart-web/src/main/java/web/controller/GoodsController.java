@@ -24,6 +24,7 @@ public class GoodsController {
     public Response<List<GoodsVo>> getGoodsList(){
         return goodsManager.getGoodsInfo();
     }
+
 }
 
 

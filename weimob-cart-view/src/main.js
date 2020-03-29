@@ -9,6 +9,7 @@ import './assets/css/base.css'
 import './assets/css/index.css'
 import axios from 'axios'
 import Cookies from 'js-cookie';
+axios.defaults.withCredentials=true
 axios.defaults.baseURL = "http://localhost:8088/";
 Vue.prototype.$ajax = axios
 Vue.config.productionTip = false

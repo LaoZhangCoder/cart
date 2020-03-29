@@ -15,6 +15,10 @@ public class GoodsInfo implements Serializable {
 
     private static final long serialVersionUID = 2518158374583608243L;
     /**
+     * 商品id
+     */
+    private Integer id;
+    /**
      * 商品名称
      */
     private String goodsName;
