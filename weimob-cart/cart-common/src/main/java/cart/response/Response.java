@@ -30,7 +30,7 @@ import java.util.function.Supplier;
         this.success = success;
     }
 
-    private void setCode(String code) {
+    public void setCode(String code) {
         this.code = code;
     }
 

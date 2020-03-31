@@ -16,4 +16,6 @@ public interface GoodsServiceReadFacade {
      * @exception
      */
      List<GoodsInfo> getGoodsInfos();
+
+
 }

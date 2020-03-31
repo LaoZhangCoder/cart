@@ -1,35 +1,49 @@
-package web.response;
+package weimob.cart.server.domain.model;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @Author: 老张
- * @Date: 2020/3/29
+ * @Date: 2020/3/31
  */
 @Data
-public class CartInfoVo {
+public class CartDo {
     /**
-     * 购物车id
+     * id
      */
     private Integer id;
+
     /**
      * 用户id
      */
     private String userId;
+
     /**
      * 商品id
      */
     private Integer skuId;
-    /**
-     * 购买商品数量
-     */
-     private Integer count;
+
     /**
      * 商品数量
      */
-    private Integer goodsNum;
+    private Integer count;
+
     /**
      * 勾选状态
      */
     private Integer checked;
+
+    /**
+     * 创建时间
+     */
+    private Date createDate;
+
+    /**
+     * 更新时间
+     */
+    private Date updateDate;
+
+
 }
