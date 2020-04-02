@@ -1,10 +1,12 @@
 package weimob.cart.server.service.impl;
 
+import cart.response.Response;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.server.dao.CartDao;
 import weimob.cart.server.domain.dto.CartInfoDto;
 import weimob.cart.server.domain.model.CartDo;
@@ -61,5 +63,60 @@ public class CartServiceImpl implements CartService {
             return cartInfoDto;
         }).collect(Collectors.toList());
         return cartInfoDtoList;
+    }
+
+    @Override
+    public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
+        Response<String> response = new Response<>();
+        if (request.getIsChecked()) {
+            HashMap<String, Object> map = Maps.newHashMap();
+            if (!request.getIsAllChecked()) {
+                map.put("userId", request.getUserId());
+                map.put("skuId", request.getSkuId());
+                CartDo cartDo = cartDao.findByUniqueIndex(map);
+                if (cartDo == null) {
+                    return response;
+                }
+                cartDo.setChecked(cartDo.getChecked() == 0 ? 1 : 0);
+                Boolean update = cartDao.update(cartDo);
+                response.setResult(update.toString());
+                return response;
+            }
+            map.clear();
+            map.put("userId", request.getUserId());
+            List<CartDo> list = cartDao.list(map);
+            if (list.isEmpty()) {
+                return response;
+            }
+            //用户购物车当中是否存在未挑选的
+            Boolean excludeUnSelected = isExcludeUnSelected(list);
+            if (excludeUnSelected) {
+                //将所有购物车挑选状态更新为true
+                list.stream().forEach(cartDo -> {
+                    cartDo.setChecked(1);
+                    cartDao.update(cartDo);
+                });
+                response.setResult("true");
+                return response;
+            }
+            //将所有购物车挑选状态更新为false
+            list.stream().forEach(cartDo -> {
+                cartDo.setChecked(0);
+                cartDao.update(cartDo);
+            });
+            response.setResult("true");
+            return response;
+        }
+        return response;
+    }
+
+    private Boolean isExcludeUnSelected(List<CartDo> list) {
+        boolean isExcludeUnChecked = false;
+        for (CartDo cartDo : list) {
+            if (cartDo.getChecked().equals(0)) {
+                isExcludeUnChecked = true;
+            }
+        }
+        return isExcludeUnChecked;
     }
 }

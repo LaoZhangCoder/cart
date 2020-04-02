@@ -10,6 +10,12 @@ import weimob.cart.api.facade.UserInfoServiceReadFacade;
 import weimob.cart.api.request.UserInfoRequest;
 import weimob.cart.api.response.UserInfo;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * @Author: 老张
  * @Date: 2020/3/28
@@ -19,20 +25,43 @@ public class UserManager {
     @Reference
     private UserInfoServiceReadFacade userInfoServiceReadFacade;
 
-    public Response<UserInfoVo> getUserInfo(UserLoginQuery query){
-        Response<UserInfoVo> userInfoVoResponse=new Response<>();
+    @Autowired
+    private CartManager cartManager;
+
+    public Response<UserInfoVo> getUserInfo(UserLoginQuery query, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Response<UserInfoVo> userInfoVoResponse = new Response<>();
         UserInfoVo userInfoVo = new UserInfoVo();
         UserInfoRequest userInfoRequest = new UserInfoRequest();
         userInfoRequest.setPassword(query.getPassword());
         userInfoRequest.setPhoneNumber(query.getPhoneNumber());
         Response<UserInfo> userInfo = userInfoServiceReadFacade.getUserInfo(userInfoRequest);
-        if(userInfo.isSuccess()) {
+        if (userInfo.isSuccess()) {
             userInfoVo.setUserId(userInfo.getResult().getUserId());
             userInfoVo.setUserName(userInfo.getResult().getUserName());
             userInfoVoResponse.setResult(userInfoVo);
+            Cookie[] cookies = new Cookie[2];
+            cookies[0] = new Cookie("userInfo", userInfoVo.getUserId() + ":" + userInfoVo.getUserName());
+            cookies[0].setPath("/");
+            cookies[0].setMaxAge(1000);
+            response.addCookie(cookies[0]);
+            //合并cookie
+            AtomicBoolean excludeCart = cartManager.isExcludeCart(request.getCookies());
+            if (excludeCart.get()) {
+                cookies[1] = getCartListCookie(request.getCookies());
+                cartManager.mergeCookieCart(response, null, cookies);
+            }
             return userInfoVoResponse;
         }
-        userInfoVoResponse.setError(userInfo.getCode(),userInfo.getError());
+        userInfoVoResponse.setError(userInfo.getCode(), userInfo.getError());
         return userInfoVoResponse;
+    }
+
+    private Cookie getCartListCookie(Cookie[] cookies) {
+        for (Cookie cookie : cookies) {
+            if ("cartList".equals(cookie.getName())) {
+                return cookie;
+            }
+        }
+        return null;
     }
 }

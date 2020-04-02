@@ -5,8 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import web.manager.CartManager;
 import web.query.CartAddQuery;
+import web.query.CartUpdateQuery;
+import web.response.CartInfoVo;
+import weimob.cart.api.request.CartInfoUpdateRequest;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 
 /**
@@ -22,10 +27,20 @@ public class CartController {
     @PostMapping(value = "add")
     public Response<String> addGoods(HttpServletRequest request, HttpServletResponse response, @RequestBody CartAddQuery cartAddQuery) {
         try {
-            return cartManager.addGoods(request,response,cartAddQuery);
+            return cartManager.addGoods(request, response, cartAddQuery);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @GetMapping(value = "list")
+    public Response<List<CartInfoVo>> listCarts(HttpServletRequest request) {
+        return cartManager.listCarts(request);
+    }
+
+    @PatchMapping(value = "updateCartInfo")
+    public Response<String> updateCartChecked(HttpServletRequest request, @RequestBody CartUpdateQuery cartUpdateQuery) {
+        return cartManager.updateCartChecked(request, cartUpdateQuery);
     }
 }

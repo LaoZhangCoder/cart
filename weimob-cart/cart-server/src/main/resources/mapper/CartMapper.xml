@@ -16,7 +16,7 @@
     <sql id="criteria">
         <where>
             <if test="userId != null">AND user_id=#{userId}</if>
-            <if test="skuId != null">AND skuId=#{sku_id}</if>
+            <if test="skuId != null">AND sku_id=#{skuId}</if>
         </where>
     </sql>
     <sql id="table_name">cart</sql>
@@ -96,4 +96,17 @@
             </if>
         </trim>
     </insert>
+    <update id="update" parameterType="CartDo">
+        UPDATE
+        <include refid="table_name"/>
+        <set>
+            <if test="id != null">`id` = #{id},</if>
+            <if test="userId != null">`user_id` = #{userId},</if>
+            <if test="count != null">`count` = #{count},</if>
+            <if test="checked != null">`checked` = #{checked},</if>
+            <if test="createDate != null">`create_date` = #{createDate},</if>
+            <if test="updateDate != null">`update_date` = #{updateDate},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
 </mapper>

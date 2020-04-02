@@ -9,15 +9,20 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import web.query.CartAddQuery;
+import web.query.CartUpdateQuery;
 import web.response.CartInfoVo;
 import weimob.cart.api.facade.CartInfoServiceReadFacade;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
+import weimob.cart.api.facade.GoodsServiceReadFacade;
+import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.CartInfosSaveRequest;
 import weimob.cart.api.response.CartInfo;
+import weimob.cart.api.response.GoodsInfo;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +44,9 @@ public class CartManager {
     @Reference
     private CartInfoServiceReadFacade cartInfoServiceReadFacadeFacade;
 
+    @Reference
+    private GoodsServiceReadFacade goodsServiceReadFacade;
+
 
     public Response<String> addGoods(HttpServletRequest request, HttpServletResponse response, CartAddQuery cartAddQuery) throws Exception {
         Response<String> stringResponse = new Response<>();
@@ -48,7 +56,7 @@ public class CartManager {
         AtomicBoolean isExcludeCart = isExcludeCart(cookies);
         if (isLogin.get()) {
             List<CartInfosSaveRequest> requests;
-            //两个逻辑登陆后本地是否存在缓存在cookie的购物车
+            //两个逻辑登陆后本地是否缓存了在cookie的购物车
             if (isExcludeCart.get()) {
                 excludeCartCookie(response, cartAddQuery, cookies);
             } else {
@@ -80,6 +88,10 @@ public class CartManager {
     }
 
     private void excludeCartCookie(HttpServletResponse response, CartAddQuery cartAddQuery, Cookie[] cookies) throws java.io.IOException {
+        mergeCookieCart(response, cartAddQuery, cookies);
+    }
+
+    public void mergeCookieCart(HttpServletResponse response, CartAddQuery cartAddQuery, Cookie[] cookies) throws IOException {
         List<CartInfosSaveRequest> requests;
         List<CartInfoVo> cartCookieList = getCartCookieValueToObject(cookies);
         //获取该用户下的所有购物车
@@ -97,15 +109,17 @@ public class CartManager {
         }).collect(Collectors.toList());
         //新加商品添加到购物车
         notSameCartAddToList(requests, cartCookieList, userId, cartList);
-        //合并完后删除本低cookie
+        //合并完后删除本地cookie
         delCartCookie(response);
         //请求参数带的商品是否添加到购物车还是只是数量加一
         requestCartIfAddCart(cartAddQuery, requests, userId);
-
         cartInfoServiceWriteFacade.saveCartInfos(requests);
     }
 
-    private void requestCartIfAddCart(CartAddQuery cartAddQuery, List<CartInfosSaveRequest> requests, String userId) {
+    private Boolean requestCartIfAddCart(CartAddQuery cartAddQuery, List<CartInfosSaveRequest> requests, String userId) {
+        if (cartAddQuery == null) {
+            return false;
+        }
         boolean isExclude = false;
         for (CartInfosSaveRequest cartInfosSaveRequest : requests) {
             if (cartInfosSaveRequest.getSkuId().equals(cartAddQuery.getId())) {
@@ -121,6 +135,7 @@ public class CartManager {
             saveRequest.setCount(1);
             requests.add(saveRequest);
         }
+        return  true;
     }
 
     private void delCartCookie(HttpServletResponse response) {
@@ -164,9 +179,11 @@ public class CartManager {
     }
 
     private Cookie getStringResponse(Cookie[] cookies) {
-        for (Cookie cookie : cookies) {
-            if ("cartList".equals(cookie.getName())) {
-                return cookie;
+        if (cookies != null && cookies.length > 0) {
+            for (Cookie cookie : cookies) {
+                if ("cartList".equals(cookie.getName())) {
+                    return cookie;
+                }
             }
         }
         return null;
@@ -207,7 +224,7 @@ public class CartManager {
         return cartInfosSaveRequest;
     }
 
-    private AtomicBoolean isExcludeCart(Cookie[] cookies) {
+    public AtomicBoolean isExcludeCart(Cookie[] cookies) {
         //判断是否存在本地Cookie购物车
         AtomicBoolean isExcludeCart = new AtomicBoolean(false);
         if (cookies != null && cookies.length > 0) {
@@ -302,5 +319,64 @@ public class CartManager {
         String substring = s.substring(1, s.length() - 1);
         return objectMapper.readValue(substring, new TypeReference<List<CartInfoVo>>() {
         });
+    }
+
+    public Response<List<CartInfoVo>> listCarts(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        Response<List<CartInfoVo>> listResponse = new Response<>();
+        AtomicBoolean isLogin = isLogin(cookies);
+        if (isLogin.get()) {
+            String userId = getUserId(cookies);
+            List<GoodsInfo> goodsInfos = goodsServiceReadFacade.getGoodsInfos();
+            List<CartInfo> result = cartInfoServiceReadFacadeFacade.listCartInfos(userId).getResult();
+            List<CartInfoVo> cartInfoVoList = result.stream().map(cartInfo -> {
+                CartInfoVo cartInfoVo = new CartInfoVo();
+                BeanUtils.copyProperties(cartInfo, cartInfoVo);
+                goodsInfos.forEach(goodsInfo -> {
+                    if (goodsInfo.getId().equals(cartInfoVo.getSkuId())) {
+                        cartInfoVo.setGoodsNum(goodsInfo.getGoodsNum());
+                        cartInfoVo.setGoodsName(goodsInfo.getGoodsName());
+                        cartInfoVo.setGoodsPrice(goodsInfo.getGoodsPrice());
+                    }
+                });
+                return cartInfoVo;
+            }).collect(Collectors.toList());
+            listResponse.setResult(cartInfoVoList);
+            return listResponse;
+        }
+        AtomicBoolean excludeCart = isExcludeCart(cookies);
+        if (!excludeCart.get()) {
+            return listResponse;
+        }
+        try {
+            List<GoodsInfo> goodsInfos = goodsServiceReadFacade.getGoodsInfos();
+            List<CartInfoVo> cartCookieList = getCartCookieValueToObject(cookies);
+            cartCookieList.stream().forEach(cartInfoVo -> goodsInfos.forEach(goodsInfo -> {
+                if (goodsInfo.getId().equals(cartInfoVo.getSkuId())) {
+                    cartInfoVo.setGoodsNum(goodsInfo.getGoodsNum());
+                    cartInfoVo.setGoodsName(goodsInfo.getGoodsName());
+                    cartInfoVo.setGoodsPrice(goodsInfo.getGoodsPrice());
+                }
+            }));
+            listResponse.setResult(cartCookieList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return listResponse;
+    }
+
+    public Response<String> updateCartChecked(HttpServletRequest request, CartUpdateQuery cartUpdateQuery) {
+        Response<String> response = new Response();
+        AtomicBoolean login = isLogin(request.getCookies());
+        if (login.get()) {
+            String userId = getUserId(request.getCookies());
+            CartInfoUpdateRequest cartInfoUpdateRequest = new CartInfoUpdateRequest();
+            BeanUtils.copyProperties(cartUpdateQuery, cartInfoUpdateRequest);
+            cartInfoUpdateRequest.setUserId(userId);
+            cartInfoUpdateRequest.setSkuId(cartUpdateQuery.getSkuId());
+            cartInfoServiceWriteFacade.updateCartInfo(cartInfoUpdateRequest);
+        }
+        return response;
     }
 }

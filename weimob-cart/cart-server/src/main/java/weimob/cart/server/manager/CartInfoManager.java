@@ -1,7 +1,9 @@
 package weimob.cart.server.manager;
 
+import cart.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.server.domain.dto.CartInfoDto;
 import weimob.cart.server.query.CartInfoSaveQuery;
 import weimob.cart.server.query.CartInfosQuery;
@@ -24,5 +26,9 @@ public class CartInfoManager {
 
     public List<CartInfoDto> listCartInfos(CartInfosQuery cartInfosQuery){
         return cartService.listCartInfo(cartInfosQuery);
+    }
+
+    public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
+        return  cartService.updateCartInfo(request);
     }
 }

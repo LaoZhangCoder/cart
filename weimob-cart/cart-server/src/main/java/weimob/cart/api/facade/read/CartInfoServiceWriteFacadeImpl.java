@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
+import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.CartInfosSaveRequest;
 import weimob.cart.server.manager.CartInfoManager;
 import weimob.cart.server.query.CartInfoSaveQuery;
@@ -40,5 +41,10 @@ public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacad
         }
         response.setError(HttpStatus.INTERNAL_SERVER_ERROR.value() + "", "检查请求参数是否出错");
         return response;
+    }
+
+    @Override
+    public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
+       return cartInfoManager.updateCartInfo(request);
     }
 }

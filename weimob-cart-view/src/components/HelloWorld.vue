@@ -46,6 +46,7 @@
     },
     methods:{
       addCart(good){
+        this.$message('添加成功');
         this.$ajax.post("/api/cart/add",good).then((response) => {
           if(response.data.success){
             var cart=JSON.stringify(response.data.result)

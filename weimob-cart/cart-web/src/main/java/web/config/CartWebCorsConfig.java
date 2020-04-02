@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CartWebCorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**/*").allowedOrigins("*").allowCredentials(true);
+        registry.addMapping("/**/*").allowedOrigins("*").allowCredentials(true).allowedMethods("*");
 
     }
 }

@@ -2,6 +2,8 @@ package web.response;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @Author: 老张
  * @Date: 2020/3/29
@@ -32,4 +34,13 @@ public class CartInfoVo {
      * 勾选状态
      */
     private Integer checked;
+    /**
+     *
+     * 商品名称
+     */
+    private String goodsName;
+    /**
+     * 商品价格
+     */
+    private BigDecimal goodsPrice;
 }

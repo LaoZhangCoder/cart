@@ -1,5 +1,7 @@
 package weimob.cart.server.service;
 
+import cart.response.Response;
+import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.server.domain.dto.CartInfoDto;
 import weimob.cart.server.query.CartInfoSaveQuery;
 import weimob.cart.server.query.CartInfosQuery;
@@ -19,4 +21,12 @@ public interface CartService {
     Boolean insertCartInfo(List<CartInfoSaveQuery> cartInfoSaveQuery);
 
     List<CartInfoDto> listCartInfo(CartInfosQuery cartInfosQuery);
+
+    /**
+     *
+     * @param request
+     * @return string
+     * @desciption 更新购物车部分信息
+     */
+    Response<String> updateCartInfo(CartInfoUpdateRequest request);
 }

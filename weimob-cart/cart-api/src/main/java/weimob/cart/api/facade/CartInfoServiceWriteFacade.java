@@ -1,6 +1,7 @@
 package weimob.cart.api.facade;
 
 import cart.response.Response;
+import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.CartInfosSaveRequest;
 
 import java.util.List;
@@ -14,7 +15,16 @@ public interface CartInfoServiceWriteFacade {
      *
      * @param requests
      * @return
+     * @descition 保存购物车
      */
     Response<Boolean> saveCartInfos(List<CartInfosSaveRequest> requests);
+
+    /**
+     *
+     * @param request
+     * @return
+     * @descition 修改购物车的部分信息
+     */
+    Response<String> updateCartInfo(CartInfoUpdateRequest request);
 
 }
