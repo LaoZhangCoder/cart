@@ -30,7 +30,7 @@ public class CartUpdateQuery {
     /**
      * 修改后的数量
      */
-    private Boolean count;
+    private Integer count;
 
     /**
      * 商品id

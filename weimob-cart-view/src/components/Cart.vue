@@ -78,8 +78,8 @@
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <el-input-number :step="1" v-model="item.count" @change="handleChange(item.count)" :min="1"
-                                         :max="101"></el-input-number>
+                        <el-input-number :step="1" v-model="item.count" @change="handleChange(item)" :min="1"
+                                         :max="item.goodsNum"></el-input-number>
                       </div>
                     </div>
                   </div>
@@ -131,7 +131,7 @@
         <p>你确认要删除此条数据吗?</p>
       </template>
       <template v-slot:btnGroup>
-        <a class="btn btn--m" href="javascript:;" @click="delCart">确认</a>
+        <a class="btn btn--m" href="javascript:;" v-on:click="delCart()">确认</a>
         <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm=false">关闭</a>
       </template>
     </modal>
@@ -233,12 +233,18 @@
         })
       },
       handleChange(item) {
-        if (item <= 0) {
+        if (item.count <= 0) {
           alert("购买数量不能小于0！")
-        } else if (item > 101) {
+        } else if (item.count > 101) {
           alert("购买数量超过了库存！")
         } else {
-
+          this.updateCartParam.isChecked=false
+          this.updateCartParam.isAllChecked=false
+          this.updateCartParam.isCount=true
+          this.updateCartParam.count=item.count
+          this.updateCartParam.skuId=item.skuId
+          this.$ajax.patch("/api/cart/updateCartInfo",this.updateCartParam).then(() => {
+          })
         }
 
       },
@@ -252,11 +258,14 @@
       },
       delCart() {
         let delItem = this.delItem;
+        let cartId=this.delItem.id
         this.cartList.forEach((item, index) => {
-          if (delItem.goodsId == item.goodsId) {
+          if (delItem.id == item.id) {
             this.cartList.splice(index, 1);
             this.modalConfirm = false;
           }
+        })
+        this.$ajax.delete("/api/cart/deleteCart/"+cartId).then(() => {
         })
       },
       toggleCheckAll() {

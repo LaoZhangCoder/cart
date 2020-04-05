@@ -47,4 +47,9 @@ public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacad
     public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
        return cartInfoManager.updateCartInfo(request);
     }
+
+    @Override
+    public Response<String> deleteCart(Integer cartId) {
+        return cartInfoManager.deleteCart(cartId);
+    }
 }

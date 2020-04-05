@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.server.dao.CartDao;
@@ -68,12 +69,10 @@ public class CartServiceImpl implements CartService {
     @Override
     public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
         Response<String> response = new Response<>();
+        HashMap<String, Object> map = Maps.newHashMap();
         if (request.getIsChecked()) {
-            HashMap<String, Object> map = Maps.newHashMap();
             if (!request.getIsAllChecked()) {
-                map.put("userId", request.getUserId());
-                map.put("skuId", request.getSkuId());
-                CartDo cartDo = cartDao.findByUniqueIndex(map);
+                CartDo cartDo = getCartDo(request, map);
                 if (cartDo == null) {
                     return response;
                 }
@@ -107,7 +106,41 @@ public class CartServiceImpl implements CartService {
             response.setResult("true");
             return response;
         }
+        //是否是修改商品数量
+        if (request.getIsCount()) {
+            map.clear();
+            CartDo cartDo = getCartDo(request, map);
+            if (cartDo == null) {
+                response.setError(HttpStatus.NOT_FOUND.toString(), "修改的商品不存在");
+                return response;
+            }
+            //修改后的数量
+            cartDo.setCount(request.getCount());
+            Boolean update = cartDao.update(cartDo);
+            if (update) {
+                response.setResult("修改成功");
+            }
+            return response;
+
+        }
         return response;
+    }
+
+    @Override
+    public Response<String> deleteCart(Integer id) {
+        Response<String> response = new Response<>();
+        Boolean delete = cartDao.delete(Long.valueOf(id));
+        if (delete) {
+            response.setResult("删除成功");
+        }
+        response.setError("删除失败");
+        return response;
+    }
+
+    private CartDo getCartDo(CartInfoUpdateRequest request, HashMap<String, Object> map) {
+        map.put("userId", request.getUserId());
+        map.put("skuId", request.getSkuId());
+        return cartDao.findByUniqueIndex(map);
     }
 
     private Boolean isExcludeUnSelected(List<CartDo> list) {

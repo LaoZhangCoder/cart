@@ -27,4 +27,11 @@ public interface CartInfoServiceWriteFacade {
      */
     Response<String> updateCartInfo(CartInfoUpdateRequest request);
 
+    /**
+     *
+     * @param cartId
+     * @return
+     * @desciton 删除购物车
+     */
+    Response<String> deleteCart(Integer cartId);
 }

@@ -35,7 +35,8 @@
         <include refid="criteria"/>
     </select>
     <delete id="deletesBycondition" parameterType="map">
-        delete from <include refid="table_name"/>
+        delete from
+        <include refid="table_name"/>
         <include refid="criteria"/>
     </delete>
     <insert id="creates">
@@ -109,4 +110,10 @@
         </set>
         WHERE id = #{id}
     </update>
+
+    <delete id="delete" parameterType="long">
+        delete from
+        <include refid="table_name"/>
+        WHERE id = #{id}
+    </delete>
 </mapper>

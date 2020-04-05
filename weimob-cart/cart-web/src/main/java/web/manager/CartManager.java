@@ -379,4 +379,8 @@ public class CartManager {
         }
         return response;
     }
+
+    public Response<String> deleteCart(Integer cartId) {
+        return cartInfoServiceWriteFacade.deleteCart(cartId);
+    }
 }

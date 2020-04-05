@@ -40,7 +40,12 @@ public class CartController {
     }
 
     @PatchMapping(value = "updateCartInfo")
-    public Response<String> updateCartChecked(HttpServletRequest request, @RequestBody CartUpdateQuery cartUpdateQuery) {
+    public Response<String> updateCartInfo(HttpServletRequest request, @RequestBody CartUpdateQuery cartUpdateQuery) {
         return cartManager.updateCartChecked(request, cartUpdateQuery);
+    }
+
+    @DeleteMapping(value = "deleteCart/{id}")
+    public Response<String> deleteCart(@PathVariable(name = "id") Integer id){
+        return cartManager.deleteCart(id);
     }
 }
