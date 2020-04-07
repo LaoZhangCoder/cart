@@ -27,15 +27,15 @@
 </template>
 <script>
   import HeaderCommon from './HeaderCommon'
-  import Cookies from 'js-cookie';
+
   export default {
     name: 'app',
-    components:{
+    components: {
       HeaderCommon
     },
     data() {
       return {
-        goods: [],
+        goods: []
 
       }
     },
@@ -44,14 +44,13 @@
         this.goods = response.data.result;
       })
     },
-    methods:{
-      addCart(good){
-        this.$message('添加成功');
-        this.$ajax.post("/api/cart/add",good).then((response) => {
-          if(response.data.success){
-            var cart=JSON.stringify(response.data.result)
-            Cookies.set("cartList",cart,{expires: 1})
-          }
+    methods: {
+      addCart(good) {
+        this.$message({
+          message: '添加成功!',
+          duration: 1000
+        });
+        this.$ajax.post("/api/cart/add", good).then((response) => {
         })
       }
     }

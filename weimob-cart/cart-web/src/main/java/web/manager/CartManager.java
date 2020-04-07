@@ -23,7 +23,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,8 +69,18 @@ public class CartManager {
         } else {
             //未登录添加购物车到cookie
             addCartToCookie(cartAddQuery, request.getCookies(), stringResponse, isExcludeCart);
+            setCookie(response, stringResponse.getResult());
+
         }
         return stringResponse;
+    }
+
+    private void setCookie(HttpServletResponse response, String result) throws UnsupportedEncodingException {
+        String encodeCookie = URLEncoder.encode(result, "utf-8");
+        Cookie cookie = new Cookie("cartList", encodeCookie);
+        cookie.setMaxAge(3600 * 24);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 
     private void notIncludeCookie(CartAddQuery cartAddQuery, Cookie[] cookies) {
@@ -135,7 +147,7 @@ public class CartManager {
             saveRequest.setCount(1);
             requests.add(saveRequest);
         }
-        return  true;
+        return true;
     }
 
     private void delCartCookie(HttpServletResponse response) {
@@ -315,9 +327,7 @@ public class CartManager {
     private List<CartInfoVo> getCookieJsonToObject(ObjectMapper objectMapper, Cookie cookie) throws java.io.IOException {
         String value = cookie.getValue();
         String decode = URLDecoder.decode(value, "utf-8");
-        String s = StringEscapeUtils.unescapeJava(decode);
-        String substring = s.substring(1, s.length() - 1);
-        return objectMapper.readValue(substring, new TypeReference<List<CartInfoVo>>() {
+        return objectMapper.readValue(decode, new TypeReference<List<CartInfoVo>>() {
         });
     }
 
@@ -366,7 +376,7 @@ public class CartManager {
         return listResponse;
     }
 
-    public Response<String> updateCartChecked(HttpServletRequest request, CartUpdateQuery cartUpdateQuery) {
+    public Response<String> updateCartChecked(HttpServletRequest request, CartUpdateQuery cartUpdateQuery, HttpServletResponse res) {
         Response<String> response = new Response();
         AtomicBoolean login = isLogin(request.getCookies());
         if (login.get()) {
@@ -376,6 +386,40 @@ public class CartManager {
             cartInfoUpdateRequest.setUserId(userId);
             cartInfoUpdateRequest.setSkuId(cartUpdateQuery.getSkuId());
             cartInfoServiceWriteFacade.updateCartInfo(cartInfoUpdateRequest);
+        } else {
+            AtomicBoolean excludeCart = isExcludeCart(request.getCookies());
+            //不存在购物车直接返回
+            if (!excludeCart.get()) {
+                return response;
+            }
+            try {
+                List<CartInfoVo> cookieCartList = getCartCookieValueToObject(request.getCookies());
+                if (cartUpdateQuery.getIsChecked()) {
+                    if (cartUpdateQuery.getIsAllChecked()) {
+                        cookieCartList.forEach(cartInfoVo -> cartInfoVo.setChecked(1));
+                    } else {
+                        cookieCartList.forEach(cartInfoVo -> {
+                            if (cartInfoVo.getSkuId().equals(cartUpdateQuery.getSkuId())) {
+                                cartInfoVo.setChecked(cartInfoVo.getChecked() == 1 ? 0 : 1);
+                            }
+                        });
+                    }
+
+                } else if (cartUpdateQuery.getIsCount()) {
+                    cookieCartList.forEach(cartInfoVo -> {
+                        if (cartInfoVo.getSkuId().equals(cartUpdateQuery.getSkuId())) {
+                            cartInfoVo.setCount(cartUpdateQuery.getCount());
+                        }
+                    });
+                }
+                ObjectMapper objectMapper = new ObjectMapper();
+                String cartJsonObject = objectMapper.writeValueAsString(cookieCartList);
+                setCookie(res, cartJsonObject);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         }
         return response;
     }

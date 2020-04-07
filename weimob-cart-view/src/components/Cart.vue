@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div>
-    <nav-header></nav-header>
+    <nav-header ></nav-header>
     <div class="nav-breadcrumb-wrap">
       <div class="container">
         <nav class="nav-breadcrumb">
@@ -156,6 +156,7 @@
     name: 'Cart',
     data() {
       return {
+        cartCount:0,
         modalConfirm: false,
         delItem: '',
         cartList: [],
@@ -208,6 +209,7 @@
         this.$ajax.get("/api/cart/list").then((response) => {
           let res = response.data;
           this.cartList = res.result;
+          this.cartCount=this.cartList.length
         })
       },
       editCart(type, item) {
