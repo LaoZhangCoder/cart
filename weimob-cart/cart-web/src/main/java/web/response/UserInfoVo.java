@@ -17,4 +17,10 @@ public class UserInfoVo {
      * 用户名称
      */
     private String userName;
+
+    /**
+     * 用户密码
+     */
+
+    private  String password;
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import web.query.CartAddQuery;
 import web.query.CartUpdateQuery;
@@ -278,7 +279,7 @@ public class CartManager {
 
     private void notIncludeCart(CartAddQuery cartAddQuery, Response<String> stringResponse, ObjectMapper objectMapper) throws JsonProcessingException {
         //用户未登录且第一次添加商品到购物车所走逻辑
-        CartInfoVo cartInfoVo = new CartInfoVo();
+        CartInfoVo cartInfoVo =  CartInfoVo.builder().build();
         cartInfoVo.setChecked(1);
         cartInfoVo.setSkuId(cartAddQuery.getId());
         cartInfoVo.setCount(1);
@@ -313,7 +314,7 @@ public class CartManager {
         }
         //不包含则添加该商品到购物车
         if (!isExclude) {
-            CartInfoVo cartInfoVo = new CartInfoVo();
+            CartInfoVo cartInfoVo =  CartInfoVo.builder().build();
             cartInfoVo.setChecked(1);
             cartInfoVo.setSkuId(cartAddQuery.getId());
             cartInfoVo.setCount(1);
@@ -340,7 +341,7 @@ public class CartManager {
             List<GoodsInfo> goodsInfos = goodsServiceReadFacade.getGoodsInfos();
             List<CartInfo> result = cartInfoServiceReadFacadeFacade.listCartInfos(userId).getResult();
             List<CartInfoVo> cartInfoVoList = result.stream().map(cartInfo -> {
-                CartInfoVo cartInfoVo = new CartInfoVo();
+                CartInfoVo cartInfoVo =  CartInfoVo.builder().build();
                 BeanUtils.copyProperties(cartInfo, cartInfoVo);
                 goodsInfos.forEach(goodsInfo -> {
                     if (goodsInfo.getId().equals(cartInfoVo.getSkuId())) {

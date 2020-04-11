@@ -1,5 +1,7 @@
 package web.query;
 
+import cart.request.AbstractRequest;
+import cart.untils.ParamUtil;
 import lombok.Data;
 
 /**
@@ -7,7 +9,7 @@ import lombok.Data;
  * @Date: 2020/3/29
  */
 @Data
-public class CartAddQuery {
+public class CartAddQuery extends AbstractRequest {
     /**
      * 商品id
      */
@@ -28,4 +30,8 @@ public class CartAddQuery {
      */
     private Integer goodsNum;
 
+    @Override
+    public void checkParam() {
+        ParamUtil.nonNull(id,"商品id不能为空!");
+    }
 }

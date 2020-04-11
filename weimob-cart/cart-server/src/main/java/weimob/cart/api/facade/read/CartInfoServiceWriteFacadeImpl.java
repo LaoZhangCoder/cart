@@ -2,6 +2,7 @@ package weimob.cart.api.facade.read;
 
 import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,8 +10,13 @@ import org.springframework.stereotype.Component;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.CartInfosSaveRequest;
+import weimob.cart.api.request.MergeCartInfoRequest;
+import weimob.cart.api.response.CartInfo;
 import weimob.cart.server.manager.CartInfoManager;
 import weimob.cart.server.query.CartInfoSaveQuery;
+import weimob.cart.server.service.CartService;
+
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +30,9 @@ public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacad
 
     @Autowired
     private CartInfoManager cartInfoManager;
+
+    @Autowired
+    private CartService cartService;
 
     @Override
     public Response<Boolean> saveCartInfos(List<CartInfosSaveRequest> requests) {
@@ -44,8 +53,13 @@ public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacad
     }
 
     @Override
+    public Response<Boolean> mergeCartInfo(MergeCartInfoRequest request) {
+         return Response.ok(cartService.mergeCartInfo(request));
+    }
+
+    @Override
     public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
-       return cartInfoManager.updateCartInfo(request);
+        return cartInfoManager.updateCartInfo(request);
     }
 
     @Override

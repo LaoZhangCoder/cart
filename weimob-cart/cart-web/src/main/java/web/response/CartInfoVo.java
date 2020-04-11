@@ -1,6 +1,9 @@
 package web.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -9,6 +12,9 @@ import java.math.BigDecimal;
  * @Date: 2020/3/29
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartInfoVo {
     /**
      * 购物车id

@@ -3,6 +3,7 @@ package weimob.cart.api.facade;
 import cart.response.Response;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.CartInfosSaveRequest;
+import weimob.cart.api.request.MergeCartInfoRequest;
 
 import java.util.List;
 
@@ -18,6 +19,14 @@ public interface CartInfoServiceWriteFacade {
      * @descition 保存购物车
      */
     Response<Boolean> saveCartInfos(List<CartInfosSaveRequest> requests);
+
+    /**
+     *
+     * @param cookieCartInfos
+     * @desciption 合并cookie当中的购物车信息到数据库
+     * @return
+     */
+    Response<Boolean> mergeCartInfo(MergeCartInfoRequest request);
 
     /**
      *

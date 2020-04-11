@@ -8,17 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import weimob.cart.api.request.CartInfoUpdateRequest;
+import weimob.cart.api.request.CartInfosSaveRequest;
+import weimob.cart.api.request.MergeCartInfoRequest;
+import weimob.cart.api.response.CartInfo;
+import weimob.cart.server.converter.CartDoConverter;
 import weimob.cart.server.dao.CartDao;
 import weimob.cart.server.domain.dto.CartInfoDto;
 import weimob.cart.server.domain.model.CartDo;
+import weimob.cart.server.manager.CartInfoManager;
 import weimob.cart.server.query.CartInfoSaveQuery;
 import weimob.cart.server.query.CartInfosQuery;
 import weimob.cart.server.service.CartService;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,13 +34,16 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private CartDao cartDao;
 
+    @Autowired
+    private CartInfoManager cartInfoManager;
+
     @Override
     public Boolean insertCartInfo(List<CartInfoSaveQuery> cartInfoSaveQuery) {
         List<CartDo> cartDoList = cartInfoSaveQuery.stream().map(cartInfo -> {
             CartDo cartDo = new CartDo();
             cartDo.setUserId(cartInfo.getUserId());
             cartDo.setSkuId(cartInfo.getSkuId());
-            cartDo.setChecked(1);
+            cartDo.setChecked(cartInfo.getChecked());
             cartDo.setCount(cartInfo.getCount());
             cartDo.setCreateDate(new Date());
             cartDo.setUpdateDate(new Date());
@@ -64,6 +69,44 @@ public class CartServiceImpl implements CartService {
             return cartInfoDto;
         }).collect(Collectors.toList());
         return cartInfoDtoList;
+    }
+
+    @Override
+    public Boolean mergeCartInfo(MergeCartInfoRequest request) {
+        HashMap<String, Object> map = Maps.newHashMap();
+        map.put("userId", request.getUserId());
+        List<CartDo> cartDo = cartDao.list(map);
+        if (!cartDo.isEmpty()) {
+            sameCartNumIncrease(cartDo, request.getCartInfos(), request.getUserId());
+        }
+        notSameCartAddToList(request.getCartInfos(), cartDo, request.getUserId());
+        //先删除所有购物车在重新添加需要事务支持
+        return cartInfoManager.addAndDeleteTrans(map, request);
+    }
+
+    private void notSameCartAddToList(List<CartInfosSaveRequest> cartInfosSaveRequests, List<CartDo> cartDoList, String userId) {
+        Set<Integer> cartIds = cartInfosSaveRequests.stream().map(CartInfosSaveRequest::getSkuId).collect(Collectors.toSet());
+        for (CartDo cartDo : cartDoList) {
+            if (!cartIds.contains(cartDo.getSkuId())) {
+                CartInfosSaveRequest saveRequest = new CartInfosSaveRequest();
+                saveRequest.setSkuId(cartDo.getSkuId());
+                saveRequest.setUserId(userId);
+                saveRequest.setChecked(cartDo.getChecked());
+                saveRequest.setCount(cartDo.getCount());
+                cartInfosSaveRequests.add(saveRequest);
+            }
+        }
+    }
+
+    private void sameCartNumIncrease(List<CartDo> cartDoList, List<CartInfosSaveRequest> cartList, String userId) {
+        for (CartInfosSaveRequest cartInfo : cartList) {
+            for (CartDo cartInfoVo : cartDoList) {
+                if (cartInfoVo.getSkuId().equals(cartInfo.getSkuId())) {
+                    cartInfo.setCount(cartInfo.getCount() + cartInfoVo.getCount());
+                }
+            }
+            cartInfo.setUserId(userId);
+        }
     }
 
     @Override
