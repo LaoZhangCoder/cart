@@ -59,7 +59,7 @@ public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacad
 
     @Override
     public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
-        return cartInfoManager.updateCartInfo(request);
+        return Response.ok(cartService.updateCartInfo(request));
     }
 
     @Override

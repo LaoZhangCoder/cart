@@ -1,5 +1,7 @@
 package weimob.cart.server.service.impl;
 
+import cart.enums.MessageEnum;
+import cart.exception.ServiceException;
 import cart.response.Response;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +14,12 @@ import weimob.cart.api.request.CartInfosSaveRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
 import weimob.cart.api.response.CartInfo;
 import weimob.cart.server.converter.CartDoConverter;
+import weimob.cart.server.converter.CartInfoDtoConverter;
 import weimob.cart.server.dao.CartDao;
+import weimob.cart.server.dao.GoodsDao;
 import weimob.cart.server.domain.dto.CartInfoDto;
 import weimob.cart.server.domain.model.CartDo;
+import weimob.cart.server.domain.model.GoodsDo;
 import weimob.cart.server.manager.CartInfoManager;
 import weimob.cart.server.query.CartInfoSaveQuery;
 import weimob.cart.server.query.CartInfosQuery;
@@ -36,6 +41,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartInfoManager cartInfoManager;
+
+    @Autowired
+    private GoodsDao goodsDao;
 
     @Override
     public Boolean insertCartInfo(List<CartInfoSaveQuery> cartInfoSaveQuery) {
@@ -59,16 +67,13 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartInfoDto> listCartInfo(CartInfosQuery cartInfosQuery) {
-
         HashMap<String, Object> map = Maps.newHashMap();
         map.put("userId", cartInfosQuery.getUserId());
         List<CartDo> list = cartDao.list(map);
-        List<CartInfoDto> cartInfoDtoList = list.stream().map(cartDo -> {
-            CartInfoDto cartInfoDto = new CartInfoDto();
-            BeanUtils.copyProperties(cartDo, cartInfoDto);
-            return cartInfoDto;
-        }).collect(Collectors.toList());
-        return cartInfoDtoList;
+        if (list.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        return CartInfoDtoConverter.cartInfoDtoList(list);
     }
 
     @Override
@@ -102,33 +107,47 @@ public class CartServiceImpl implements CartService {
         for (CartInfosSaveRequest cartInfo : cartList) {
             for (CartDo cartInfoVo : cartDoList) {
                 if (cartInfoVo.getSkuId().equals(cartInfo.getSkuId())) {
-                    cartInfo.setCount(cartInfo.getCount() + cartInfoVo.getCount());
+                    if (!isOverMaxGoodNum(cartInfo, cartInfoVo)) {
+                        cartInfo.setCount(cartInfo.getCount() + cartInfoVo.getCount());
+                    }
                 }
             }
             cartInfo.setUserId(userId);
         }
     }
 
+    private Boolean isOverMaxGoodNum(CartInfosSaveRequest cartInfo, CartDo cartInfoVo) {
+        HashMap<String, Object> map = Maps.newHashMap();
+        map.put("id", cartInfoVo.getSkuId());
+        GoodsDo goodsDo = goodsDao.findByUniqueIndex(map);
+        if (cartInfo.getCount() + cartInfoVo.getCount() > goodsDo.getGoodsNum()) {
+            cartInfo.setCount(cartInfo.getCount());
+            return true;
+        }
+        return false;
+    }
+
     @Override
-    public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
-        Response<String> response = new Response<>();
+    public String updateCartInfo(CartInfoUpdateRequest request) {
         HashMap<String, Object> map = Maps.newHashMap();
         if (request.getIsChecked()) {
             if (!request.getIsAllChecked()) {
                 CartDo cartDo = getCartDo(request, map);
                 if (cartDo == null) {
-                    return response;
+                    throw new ServiceException("update cart not include");
                 }
                 cartDo.setChecked(cartDo.getChecked() == 0 ? 1 : 0);
                 Boolean update = cartDao.update(cartDo);
-                response.setResult(update.toString());
-                return response;
+                if (update) {
+                    return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
+                }
+                return MessageEnum.OPERATION_FAIL.getReasonPhrase();
             }
             map.clear();
             map.put("userId", request.getUserId());
             List<CartDo> list = cartDao.list(map);
             if (list.isEmpty()) {
-                return response;
+                return MessageEnum.OPERATION_FAIL.getReasonPhrase();
             }
             //用户购物车当中是否存在未挑选的
             Boolean excludeUnSelected = isExcludeUnSelected(list);
@@ -138,35 +157,38 @@ public class CartServiceImpl implements CartService {
                     cartDo.setChecked(1);
                     cartDao.update(cartDo);
                 });
-                response.setResult("true");
-                return response;
+                return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
             }
             //将所有购物车挑选状态更新为false
             list.stream().forEach(cartDo -> {
                 cartDo.setChecked(0);
                 cartDao.update(cartDo);
             });
-            response.setResult("true");
-            return response;
+            return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
         }
         //是否是修改商品数量
         if (request.getIsCount()) {
             map.clear();
             CartDo cartDo = getCartDo(request, map);
             if (cartDo == null) {
-                response.setError(HttpStatus.NOT_FOUND.toString(), "修改的商品不存在");
-                return response;
+                throw new ServiceException("update cart not include");
+            }
+            map.clear();
+            map.put("id", request.getSkuId());
+            GoodsDo goodsDo = goodsDao.findByUniqueIndex(map);
+            if (request.getCount() > goodsDo.getGoodsNum()) {
+                throw new ServiceException("购物的数量超过了商品数量!");
             }
             //修改后的数量
             cartDo.setCount(request.getCount());
             Boolean update = cartDao.update(cartDo);
             if (update) {
-                response.setResult("修改成功");
+                return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
             }
-            return response;
+            return MessageEnum.OPERATION_FAIL.getReasonPhrase();
 
         }
-        return response;
+        return MessageEnum.OPERATION_FAIL.getReasonPhrase();
     }
 
     @Override

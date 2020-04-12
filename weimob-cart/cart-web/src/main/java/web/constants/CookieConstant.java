@@ -21,7 +21,7 @@ public class CookieConstant {
     /**
      * 一周
      */
-    public static final int COOKIE_MAX_AGE_ONE_WEEk = 24 * 7 * 3600;
+    public static final int COOKIE_MAX_AGE_ONE_WEEK = 24 * 7 * 3600;
 
     /**
      * 购物车cookieName

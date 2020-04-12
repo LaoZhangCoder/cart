@@ -58,7 +58,7 @@ public class CartInfoManager {
     }
 
     public Response<String> updateCartInfo(CartInfoUpdateRequest request) {
-        return cartService.updateCartInfo(request);
+        return  null;
     }
 
     public Response<String> deleteCart(Integer cartId) {

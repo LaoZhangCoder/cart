@@ -5,11 +5,16 @@ import com.alibaba.dubbo.config.annotation.Service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import weimob.cart.api.facade.CartInfoServiceReadFacade;
 import weimob.cart.api.response.CartInfo;
+import weimob.cart.server.converter.CartInfoConverter;
 import weimob.cart.server.domain.dto.CartInfoDto;
+import weimob.cart.server.domain.dto.GoodsDto;
 import weimob.cart.server.manager.CartInfoManager;
 import weimob.cart.server.query.CartInfosQuery;
+import weimob.cart.server.service.CartService;
+import weimob.cart.server.service.GoodsService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,20 +27,24 @@ import java.util.stream.Collectors;
 @Component
 public class CartInfoServiceReadFacadeImpl implements CartInfoServiceReadFacade {
     @Autowired
-    private CartInfoManager cartInfoManager;
+    private CartService cartService;
+    @Autowired
+    private GoodsService goodsService;
+
     @Override
     public Response<List<CartInfo>> listCartInfos(String userId) {
-        CartInfosQuery request=new CartInfosQuery();
-        Response<List<CartInfo>> objectResponse = new Response<>();
+        if (StringUtils.isEmpty(userId)) {
+            return Response.ok(null);
+        }
+        CartInfosQuery request = new CartInfosQuery();
         request.setUserId(userId);
-        List<CartInfoDto> cartInfoDtoList = cartInfoManager.listCartInfos(request);
-        List<CartInfo> infoList = cartInfoDtoList.stream().map(cartInfoDto -> {
-            CartInfo cartInfo = new CartInfo();
-            BeanUtils.copyProperties(cartInfoDto, cartInfo);
-            return cartInfo;
-        }).collect(Collectors.toList());
-        objectResponse.setResult(infoList);
-        objectResponse.setCode("200");
-        return  objectResponse;
+        List<CartInfoDto> cartInfoDtoList = cartService.listCartInfo(request);
+
+        if (cartInfoDtoList.isEmpty()) {
+            return Response.ok(null);
+        }
+        List<GoodsDto> goodsInfos = goodsService.getGoodsInfos();
+        List<CartInfo> cartInfoList = CartInfoConverter.cartInfoList(cartInfoDtoList,goodsInfos);
+        return Response.ok(cartInfoList);
     }
 }

@@ -43,7 +43,7 @@ public interface CartService {
      * @return string
      * @desciption 更新购物车部分信息
      */
-    Response<String> updateCartInfo(CartInfoUpdateRequest request);
+    String updateCartInfo(CartInfoUpdateRequest request);
 
     /**
      *

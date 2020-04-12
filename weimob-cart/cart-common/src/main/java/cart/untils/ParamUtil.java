@@ -7,7 +7,7 @@ import java.util.Collection;
  * @Author: 老张
  * @Date: 2020/4/10
  */
-public abstract class ParamUtil {
+public  class ParamUtil {
     /**
      * 断言字符串空
      * 该断言会会判断字符串是否为空，只包含空白符也会判断为空

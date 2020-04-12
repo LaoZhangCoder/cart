@@ -237,8 +237,11 @@
       handleChange(item) {
         if (item.count <= 0) {
           alert("购买数量不能小于0！")
-        } else if (item.count > 101) {
-          alert("购买数量超过了库存！")
+        } else if (item.count+1 > item.goodsNum) {
+          this.$message({
+            message: "该商品限购"+ item.goodsNum+"！",
+            duration: 2000
+          });
         } else {
           this.updateCartParam.isChecked=false
           this.updateCartParam.isAllChecked=false

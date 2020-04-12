@@ -4,6 +4,8 @@ import cart.request.AbstractRequest;
 import cart.untils.ParamUtil;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @Author: 老张
  * @Date: 2020/3/29
@@ -23,7 +25,7 @@ public class CartAddQuery extends AbstractRequest {
     /**
      * 商品价格
      */
-    private Integer goodsPrice;
+    private BigDecimal goodsPrice;
 
     /**
      * 商品数量

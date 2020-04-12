@@ -30,7 +30,6 @@ public class MergeCartInfoRequestConverter {
         String decode = null;
         try {
             decode = URLDecoder.decode(cookieCartInfo, "utf-8");
-            System.out.println(decode);
             List<CartInfosSaveRequest> cartInfosSaveRequestList = objectMapper.readValue(decode, new TypeReference<List<CartInfosSaveRequest>>() {
             });
             mergeCartInfoRequest.setCartInfos(cartInfosSaveRequestList);
