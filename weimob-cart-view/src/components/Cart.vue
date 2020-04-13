@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div>
-    <nav-header ></nav-header>
+    <nav-header></nav-header>
     <div class="nav-breadcrumb-wrap">
       <div class="container">
         <nav class="nav-breadcrumb">
@@ -110,6 +110,7 @@
                     <use xlink:href="#icon-ok"/></svg>
                 </span>
                   <span>全选</span>
+                  <span>删除选中的物品</span>
                 </a>
               </div>
             </div>
@@ -156,10 +157,11 @@
     name: 'Cart',
     data() {
       return {
-        cartCount:0,
+        cartCount: 0,
         modalConfirm: false,
         delItem: '',
         cartList: [],
+        selectList:[],
         updateCartParam: {
           isChecked: false,
           isAllChecked: false,
@@ -209,7 +211,7 @@
         this.$ajax.get("/api/cart/list").then((response) => {
           let res = response.data;
           this.cartList = res.result;
-          this.cartCount=this.cartList.length
+          this.cartCount = this.cartList.length
         })
       },
       editCart(type, item) {
@@ -219,36 +221,36 @@
           item.count--;
         } else {
           item.checked = !item.checked;
-          this.updateCartParam.isChecked=true
-          this.updateCartParam.isAllChecked=false
-          this.updateCartParam.isCount=false
-          this.updateCartParam.skuId=item.skuId
-          this.$ajax.patch("/api/cart/updateCartInfo",this.updateCartParam).then(() => {
+          this.updateCartParam.isChecked = true
+          this.updateCartParam.isAllChecked = false
+          this.updateCartParam.isCount = false
+          this.updateCartParam.skuId = item.skuId
+          this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
           })
         }
       },
-      allSelected(){
-        this.updateCartParam.isChecked=true
-        this.updateCartParam.isAllChecked=true
-        this.updateCartParam.isCount=false
-        this.$ajax.patch("/api/cart/updateCartInfo",this.updateCartParam).then(() => {
+      allSelected() {
+        this.updateCartParam.isChecked = true
+        this.updateCartParam.isAllChecked = true
+        this.updateCartParam.isCount = false
+        this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
         })
       },
       handleChange(item) {
         if (item.count <= 0) {
           alert("购买数量不能小于0！")
-        } else if (item.count+1 > item.goodsNum) {
+        } else if (item.count + 1 > item.goodsNum) {
           this.$message({
-            message: "该商品限购"+ item.goodsNum+"！",
+            message: "该商品限购" + item.goodsNum + "！",
             duration: 2000
           });
         } else {
-          this.updateCartParam.isChecked=false
-          this.updateCartParam.isAllChecked=false
-          this.updateCartParam.isCount=true
-          this.updateCartParam.count=item.count
-          this.updateCartParam.skuId=item.skuId
-          this.$ajax.patch("/api/cart/updateCartInfo",this.updateCartParam).then(() => {
+          this.updateCartParam.isChecked = false
+          this.updateCartParam.isAllChecked = false
+          this.updateCartParam.isCount = true
+          this.updateCartParam.count = item.count
+          this.updateCartParam.skuId = item.skuId
+          this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
           })
         }
 
@@ -258,19 +260,26 @@
         this.modalConfirm = true;
 
       },
+      deleteSelectGoods1(list) {
+        this.selectList = list;
+        this.modalConfirm = true;
+      },
       closeModal() {
         this.modalConfirm = false;
       },
       delCart() {
         let delItem = this.delItem;
-        let cartId=this.delItem.id
+        let cartId = this.delItem.skuId
         this.cartList.forEach((item, index) => {
-          if (delItem.id == item.id) {
+          if (delItem.skuId == item.skuId) {
             this.cartList.splice(index, 1);
             this.modalConfirm = false;
           }
         })
-        this.$ajax.delete("/api/cart/deleteCart/"+cartId).then(() => {
+        this.$ajax.delete("/api/cart/deleteCart/" + cartId).then((response) => {
+          if (response.data.success) {
+            location.reload();
+          }
         })
       },
       toggleCheckAll() {

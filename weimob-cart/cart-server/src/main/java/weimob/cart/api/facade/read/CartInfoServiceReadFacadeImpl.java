@@ -2,7 +2,6 @@ package weimob.cart.api.facade.read;
 
 import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Service;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -11,13 +10,12 @@ import weimob.cart.api.response.CartInfo;
 import weimob.cart.server.converter.CartInfoConverter;
 import weimob.cart.server.domain.dto.CartInfoDto;
 import weimob.cart.server.domain.dto.GoodsDto;
-import weimob.cart.server.manager.CartInfoManager;
 import weimob.cart.server.query.CartInfosQuery;
 import weimob.cart.server.service.CartService;
 import weimob.cart.server.service.GoodsService;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Author: 老张
@@ -34,14 +32,14 @@ public class CartInfoServiceReadFacadeImpl implements CartInfoServiceReadFacade 
     @Override
     public Response<List<CartInfo>> listCartInfos(String userId) {
         if (StringUtils.isEmpty(userId)) {
-            return Response.ok(null);
+            return Response.ok(Collections.emptyList());
         }
         CartInfosQuery request = new CartInfosQuery();
         request.setUserId(userId);
         List<CartInfoDto> cartInfoDtoList = cartService.listCartInfo(request);
 
         if (cartInfoDtoList.isEmpty()) {
-            return Response.ok(null);
+            return Response.ok(Collections.emptyList());
         }
         List<GoodsDto> goodsInfos = goodsService.getGoodsInfos();
         List<CartInfo> cartInfoList = CartInfoConverter.cartInfoList(cartInfoDtoList,goodsInfos);

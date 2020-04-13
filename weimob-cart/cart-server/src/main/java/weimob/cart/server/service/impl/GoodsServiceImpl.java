@@ -27,6 +27,11 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsDos.isEmpty()) {
             return goodsDtoList;
         }
+        return goodsDtoListConverter(goodsDos);
+    }
+
+    private List<GoodsDto> goodsDtoListConverter(List<GoodsDo> goodsDos) {
+        List<GoodsDto> goodsDtoList;
         goodsDtoList = goodsDos.stream().map(goodsDo -> {
             GoodsDto goodsDto = new GoodsDto();
             BeanUtils.copyProperties(goodsDo, goodsDto);

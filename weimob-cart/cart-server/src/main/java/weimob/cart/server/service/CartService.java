@@ -1,10 +1,9 @@
 package weimob.cart.server.service;
 
-import cart.response.Response;
+import weimob.cart.api.request.CartInfoDeleteRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
 import weimob.cart.server.domain.dto.CartInfoDto;
-import weimob.cart.server.query.CartInfoSaveQuery;
 import weimob.cart.server.query.CartInfosQuery;
 
 import java.util.List;
@@ -14,13 +13,6 @@ import java.util.List;
  * @Date: 2020/3/31
  */
 public interface CartService {
-    /**
-     * @param cartInfoSaveQuery
-     * @return boolean
-     * @desception 添加购物车到数据表中
-     */
-    Boolean insertCartInfo(List<CartInfoSaveQuery> cartInfoSaveQuery);
-
     /**
      *
      * @param cartInfosQuery
@@ -47,9 +39,9 @@ public interface CartService {
 
     /**
      *
-     * @param cartId
+     * @param request
      * @return
      */
 
-    Response<String> deleteCart(Integer cartId);
+    String deleteCart(CartInfoDeleteRequest request);
 }

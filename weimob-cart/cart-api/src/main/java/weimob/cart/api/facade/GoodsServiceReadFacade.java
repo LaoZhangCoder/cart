@@ -1,5 +1,6 @@
 package weimob.cart.api.facade;
 
+import cart.response.Response;
 import weimob.cart.api.response.GoodsInfo;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface GoodsServiceReadFacade {
      * @return return goods list
      * @exception
      */
-     List<GoodsInfo> getGoodsInfos();
+     Response<List<GoodsInfo>> getGoodsInfos();
 
 
 }

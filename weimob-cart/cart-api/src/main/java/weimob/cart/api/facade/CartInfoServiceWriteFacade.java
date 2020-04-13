@@ -1,6 +1,7 @@
 package weimob.cart.api.facade;
 
 import cart.response.Response;
+import weimob.cart.api.request.CartInfoDeleteRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.CartInfosSaveRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
@@ -12,14 +13,6 @@ import java.util.List;
  * @Date: 2020/3/31
  */
 public interface CartInfoServiceWriteFacade {
-    /**
-     *
-     * @param requests
-     * @return
-     * @descition 保存购物车
-     */
-    Response<Boolean> saveCartInfos(List<CartInfosSaveRequest> requests);
-
     /**
      *
      * @param cookieCartInfos
@@ -42,5 +35,5 @@ public interface CartInfoServiceWriteFacade {
      * @return
      * @desciton 删除购物车
      */
-    Response<String> deleteCart(Integer cartId);
+    Response<String> deleteCart(CartInfoDeleteRequest request);
 }

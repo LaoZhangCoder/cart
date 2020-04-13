@@ -102,8 +102,6 @@
             this.$ajax.post("/api/user/login", this.form).then((response) => {
               if (response.data.success) {
                 location.reload();
-                Cookies.set("userInfo", response.data.result.userId + ":" + response.data.result.userName, {expires: 1})
-                this.userName = "weimob" + Cookies.get("userInfo");
               } else {
                 this.dialogFormVisible = true
                 alert("用户名或者密码错误!")

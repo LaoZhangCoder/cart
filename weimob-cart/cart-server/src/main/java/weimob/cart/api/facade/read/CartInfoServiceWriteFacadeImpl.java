@@ -2,23 +2,14 @@ package weimob.cart.api.facade.read;
 
 import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
+import weimob.cart.api.request.CartInfoDeleteRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
-import weimob.cart.api.request.CartInfosSaveRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
-import weimob.cart.api.response.CartInfo;
-import weimob.cart.server.manager.CartInfoManager;
-import weimob.cart.server.query.CartInfoSaveQuery;
 import weimob.cart.server.service.CartService;
 
-import java.net.URLDecoder;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Author: 老张
@@ -29,32 +20,11 @@ import java.util.stream.Collectors;
 public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacade {
 
     @Autowired
-    private CartInfoManager cartInfoManager;
-
-    @Autowired
     private CartService cartService;
 
     @Override
-    public Response<Boolean> saveCartInfos(List<CartInfosSaveRequest> requests) {
-        Response<Boolean> response = new Response<>();
-        List<CartInfoSaveQuery> saveQueryList = requests.stream().map(cartInfosSaveRequest -> {
-            CartInfoSaveQuery cartInfoSaveQuery = new CartInfoSaveQuery();
-            BeanUtils.copyProperties(cartInfosSaveRequest, cartInfoSaveQuery);
-            return cartInfoSaveQuery;
-        }).collect(Collectors.toList());
-
-        Boolean isSuccess = cartInfoManager.saveCartInfo(saveQueryList);
-        if (isSuccess) {
-            response.setResult(true);
-            response.setCode(HttpStatus.OK.value() + "");
-        }
-        response.setError(HttpStatus.INTERNAL_SERVER_ERROR.value() + "", "检查请求参数是否出错");
-        return response;
-    }
-
-    @Override
     public Response<Boolean> mergeCartInfo(MergeCartInfoRequest request) {
-         return Response.ok(cartService.mergeCartInfo(request));
+        return Response.ok(cartService.mergeCartInfo(request));
     }
 
     @Override
@@ -63,7 +33,7 @@ public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacad
     }
 
     @Override
-    public Response<String> deleteCart(Integer cartId) {
-        return cartInfoManager.deleteCart(cartId);
+    public Response<String> deleteCart(CartInfoDeleteRequest request) {
+        return Response.ok(cartService.deleteCart(request));
     }
 }

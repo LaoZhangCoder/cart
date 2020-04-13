@@ -3,14 +3,13 @@ package web.controller;
 import cart.enums.MessageEnum;
 import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Reference;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import web.converter.CartInfoDeleteRequestConverter;
 import web.converter.CartInfoUpdateRequestConverter;
 import web.converter.CartInfoVoResponseConverter;
 import web.converter.MergeCartInfoRequestConverter;
 import web.cookie.CartCookieHandle;
-import web.manager.CartManager;
 import web.query.CartAddQuery;
 import web.query.CartUpdateQuery;
 import web.response.CartInfoVo;
@@ -18,16 +17,14 @@ import web.utils.CookieUtils;
 import weimob.cart.api.facade.CartInfoServiceReadFacade;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
 import weimob.cart.api.facade.GoodsServiceReadFacade;
+import weimob.cart.api.request.CartInfoDeleteRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
-import weimob.cart.api.request.CartInfosSaveRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
 import weimob.cart.api.response.CartInfo;
 import weimob.cart.api.response.GoodsInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.CookieHandler;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -38,8 +35,6 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/cart/")
 public class CartController {
-    @Autowired
-    private CartManager cartManager;
 
     @Autowired
     private CartCookieHandle cartCookieHandle;
@@ -84,7 +79,7 @@ public class CartController {
             if (result.isEmpty()) {
                 return Response.ok(null);
             }
-            List<GoodsInfo> goodsInfos = goodsServiceReadFacade.getGoodsInfos();
+            List<GoodsInfo> goodsInfos = goodsServiceReadFacade.getGoodsInfos().getResult();
             Response<List<CartInfoVo>> listResponse = CartInfoVoResponseConverter.listCartInfVo(result, goodsInfos);
             return listResponse;
         }
@@ -113,7 +108,27 @@ public class CartController {
     }
 
     @DeleteMapping(value = "deleteCart/{id}")
-    public Response<String> deleteCart(@PathVariable(name = "id") Integer id) {
-        return cartManager.deleteCart(id);
+    public Response<String> deleteCart(@PathVariable(name = "id") Integer id, HttpServletRequest request, HttpServletResponse response) {
+        boolean isLogin = CookieUtils.isLogin(request.getCookies());
+        boolean isExistCart = CookieUtils.isExcludeCookieCart(request.getCookies());
+        if (isLogin) {
+            String userId = CookieUtils.getUserIdByCookie(request.getCookies());
+            CartInfoDeleteRequest cartInfoDeleteRequest = CartInfoDeleteRequestConverter.cartInfoDeleteRequest(userId, id);
+            Response<String> stringResponse = cartInfoServiceWriteFacade.deleteCart(cartInfoDeleteRequest);
+            if (stringResponse.isSuccess()) {
+                return Response.ok(stringResponse.getResult());
+            }
+            return Response.fail(stringResponse.getError());
+        }
+        if (!isExistCart) {
+            return Response.fail(MessageEnum.OPERATION_FAIL.getReasonPhrase());
+        }
+        //删除本地cookie cart
+        List<CartInfoVo> cartInfoVoList = cartCookieHandle.getCookieJsonToObject(CookieUtils.getCartCookieValue(request.getCookies()));
+
+        String cookieValue = cartCookieHandle.deleteCartById(cartInfoVoList, id);
+
+        CookieUtils.addCookie(response, cookieValue);
+        return Response.ok(MessageEnum.OPERATION_SUCCESS.getReasonPhrase());
     }
 }

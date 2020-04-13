@@ -143,4 +143,15 @@ public class CartCookieHandle {
         }
         return getObjectToStringJson(result);
     }
+
+    public String deleteCartById(List<CartInfoVo> result, Integer id) {
+        CartInfoVo res = null;
+        for (CartInfoVo cartInfoVo : result) {
+            if (cartInfoVo.getSkuId().equals(id)) {
+                res = cartInfoVo;
+            }
+        }
+        result.remove(res);
+        return getObjectToStringJson(result);
+    }
 }

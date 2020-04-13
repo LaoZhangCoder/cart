@@ -2,18 +2,14 @@ package weimob.cart.server.service.impl;
 
 import cart.enums.MessageEnum;
 import cart.exception.ServiceException;
-import cart.response.Response;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import weimob.cart.api.request.CartInfoDeleteRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.CartInfosSaveRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
-import weimob.cart.api.response.CartInfo;
-import weimob.cart.server.converter.CartDoConverter;
 import weimob.cart.server.converter.CartInfoDtoConverter;
 import weimob.cart.server.dao.CartDao;
 import weimob.cart.server.dao.GoodsDao;
@@ -21,11 +17,13 @@ import weimob.cart.server.domain.dto.CartInfoDto;
 import weimob.cart.server.domain.model.CartDo;
 import weimob.cart.server.domain.model.GoodsDo;
 import weimob.cart.server.manager.CartInfoManager;
-import weimob.cart.server.query.CartInfoSaveQuery;
 import weimob.cart.server.query.CartInfosQuery;
 import weimob.cart.server.service.CartService;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -44,26 +42,6 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private GoodsDao goodsDao;
-
-    @Override
-    public Boolean insertCartInfo(List<CartInfoSaveQuery> cartInfoSaveQuery) {
-        List<CartDo> cartDoList = cartInfoSaveQuery.stream().map(cartInfo -> {
-            CartDo cartDo = new CartDo();
-            cartDo.setUserId(cartInfo.getUserId());
-            cartDo.setSkuId(cartInfo.getSkuId());
-            cartDo.setChecked(cartInfo.getChecked());
-            cartDo.setCount(cartInfo.getCount());
-            cartDo.setCreateDate(new Date());
-            cartDo.setUpdateDate(new Date());
-            return cartDo;
-        }).collect(Collectors.toList());
-        //先删除所有购物车在重新添加
-        HashMap<String, Object> map = Maps.newHashMap();
-        map.put("userId", cartInfoSaveQuery.get(0).getUserId());
-        cartDao.deletesByCondition(map);
-        Integer creates = cartDao.creates(cartDoList);
-        return creates >= 0;
-    }
 
     @Override
     public List<CartInfoDto> listCartInfo(CartInfosQuery cartInfosQuery) {
@@ -192,14 +170,15 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Response<String> deleteCart(Integer id) {
-        Response<String> response = new Response<>();
-        Boolean delete = cartDao.delete(Long.valueOf(id));
-        if (delete) {
-            response.setResult("删除成功");
+    public String deleteCart(CartInfoDeleteRequest request) {
+        HashMap<String, Object> map = Maps.newHashMap();
+        map.put("userId", request.getUserId());
+        map.put("skuId", request.getSkuId());
+        Integer integer = cartDao.deletesByCondition(map);
+        if (integer >= 1) {
+            return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
         }
-        response.setError("删除失败");
-        return response;
+        return MessageEnum.OPERATION_FAIL.getReasonPhrase();
     }
 
     private CartDo getCartDo(CartInfoUpdateRequest request, HashMap<String, Object> map) {
