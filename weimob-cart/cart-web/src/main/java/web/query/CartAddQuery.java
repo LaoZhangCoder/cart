@@ -1,6 +1,5 @@
 package web.query;
 
-import cart.request.AbstractRequest;
 import cart.untils.ParamUtil;
 import lombok.Data;
 
@@ -11,7 +10,7 @@ import java.math.BigDecimal;
  * @Date: 2020/3/29
  */
 @Data
-public class CartAddQuery extends AbstractRequest {
+public class CartAddQuery extends AbstractQuery  {
     /**
      * 商品id
      */

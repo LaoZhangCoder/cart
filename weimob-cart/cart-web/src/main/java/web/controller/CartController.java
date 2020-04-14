@@ -5,19 +5,16 @@ import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import web.converter.CartInfoDeleteRequestConverter;
-import web.converter.CartInfoUpdateRequestConverter;
-import web.converter.CartInfoVoResponseConverter;
-import web.converter.MergeCartInfoRequestConverter;
+import web.converter.*;
 import web.cookie.CartCookieHandle;
-import web.query.CartAddQuery;
-import web.query.CartUpdateQuery;
+import web.query.*;
 import web.response.CartInfoVo;
 import web.utils.CookieUtils;
 import weimob.cart.api.facade.CartInfoServiceReadFacade;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
 import weimob.cart.api.facade.GoodsServiceReadFacade;
 import weimob.cart.api.request.CartInfoDeleteRequest;
+import weimob.cart.api.request.CartInfoListRemoveRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
 import weimob.cart.api.response.CartInfo;
@@ -50,10 +47,8 @@ public class CartController {
 
     @PostMapping(value = "add")
     public Response<String> addGoods(HttpServletRequest request, HttpServletResponse response, @RequestBody CartAddQuery cartAddQuery) {
-        boolean isLogin = CookieUtils.isLogin(request.getCookies());
-        boolean excludeCookieCart = CookieUtils.isExcludeCookieCart(request.getCookies());
-        if (isLogin) {
-            MergeCartInfoRequest cartInfoRequest = MergeCartInfoRequestConverter.mergeCartInfoRequest(request.getCookies(), cartAddQuery);
+        if (cartAddQuery.getLogin()) {
+            MergeCartInfoRequest cartInfoRequest = MergeCartInfoRequestConverter.mergeCartInfoRequest(cartAddQuery);
             boolean isSuccess = cartInfoServiceWriteFacade.mergeCartInfo(cartInfoRequest).getResult();
             if (isSuccess) {
                 return Response.ok(MessageEnum.OPERATION_SUCCESS.getReasonPhrase());
@@ -61,7 +56,7 @@ public class CartController {
             return Response.fail(MessageEnum.OPERATION_FAIL.getReasonPhrase());
         }
         //未登录添加购物车到本地Cookie
-        String cookieJsonValue = cartCookieHandle.addCartToCookie(cartAddQuery, request.getCookies(), excludeCookieCart);
+        String cookieJsonValue = cartCookieHandle.addCartToCookie(cartAddQuery, request.getCookies(), cartAddQuery.getCookieCart());
         if (cookieJsonValue != null) {
             CookieUtils.addCookie(response, cookieJsonValue);
             return Response.ok(MessageEnum.OPERATION_SUCCESS.getReasonPhrase());
@@ -70,11 +65,9 @@ public class CartController {
     }
 
     @GetMapping(value = "list")
-    public Response<List<CartInfoVo>> listCarts(HttpServletRequest request) {
-        boolean isLogin = CookieUtils.isLogin(request.getCookies());
-        boolean excludeCookieCart = CookieUtils.isExcludeCookieCart(request.getCookies());
+    public Response<List<CartInfoVo>> listCarts(HttpServletRequest request, CartInfoQuery cartInfoQuery) {
         //判断用户是否登录，未登录则从本地cookie获取购物车数据
-        if (isLogin) {
+        if (cartInfoQuery.getLogin()) {
             List<CartInfo> result = cartInfoServiceReadFacade.listCartInfos(CookieUtils.getUserIdByCookie(request.getCookies())).getResult();
             if (result.isEmpty()) {
                 return Response.ok(null);
@@ -83,7 +76,7 @@ public class CartController {
             Response<List<CartInfoVo>> listResponse = CartInfoVoResponseConverter.listCartInfVo(result, goodsInfos);
             return listResponse;
         }
-        if (!excludeCookieCart) {
+        if (!cartInfoQuery.getCookieCart()) {
             return Response.ok(null);
         }
         return CartInfoVoResponseConverter.listCartInfVo(CookieUtils.getCartCookieValue(request.getCookies()));
@@ -91,13 +84,11 @@ public class CartController {
 
     @PatchMapping(value = "updateCartInfo")
     public Response<String> updateCartInfo(HttpServletRequest request, @RequestBody CartUpdateQuery cartUpdateQuery, HttpServletResponse response) {
-        boolean isLogin = CookieUtils.isLogin(request.getCookies());
-        boolean excludeCookieCart = CookieUtils.isExcludeCookieCart(request.getCookies());
-        if (isLogin) {
+        if (cartUpdateQuery.getLogin()) {
             CartInfoUpdateRequest cartInfoUpdateRequest = CartInfoUpdateRequestConverter.getCartInfoUpdateRequest(request, cartUpdateQuery);
             return cartInfoServiceWriteFacade.updateCartInfo(cartInfoUpdateRequest);
         }
-        if (!excludeCookieCart) {
+        if (!cartUpdateQuery.getCookieCart()) {
             return Response.fail(MessageEnum.OPERATION_FAIL.getReasonPhrase());
         }
         //没登录直接更新本地cookie购物车
@@ -131,4 +122,27 @@ public class CartController {
         CookieUtils.addCookie(response, cookieValue);
         return Response.ok(MessageEnum.OPERATION_SUCCESS.getReasonPhrase());
     }
+
+    @PostMapping(value = "allSelect")
+    public Response<String> deleteSelectCart(HttpServletResponse response, HttpServletRequest request, @RequestBody CartDeleteQuery skuIds) {
+        if (skuIds.getLogin()) {
+            String userId = CookieUtils.getUserIdByCookie(request.getCookies());
+            CartInfoListRemoveRequest cartInfoListRemoveRequest = CartInfoListRemoveRequestConverter.cartInfoListRemoveRequest(userId, skuIds.getIds());
+            Response<String> stringResponse = cartInfoServiceWriteFacade.removeCartList(cartInfoListRemoveRequest);
+            if (stringResponse.isSuccess()) {
+                return Response.ok(stringResponse.getResult());
+            }
+            return Response.fail(stringResponse.getError());
+        }
+        if (!skuIds.getCookieCart()) {
+            return Response.ok(MessageEnum.OPERATION_FAIL.getReasonPhrase());
+        }
+
+        //删除本地cookie cart
+        List<CartInfoVo> cartInfoVoList = cartCookieHandle.getCookieJsonToObject(CookieUtils.getCartCookieValue(request.getCookies()));
+        String cookieValue = cartCookieHandle.deleteCartByIds(cartInfoVoList, skuIds.getIds());
+        CookieUtils.addCookie(response, cookieValue);
+        return Response.ok(MessageEnum.OPERATION_SUCCESS.getReasonPhrase());
+    }
+
 }

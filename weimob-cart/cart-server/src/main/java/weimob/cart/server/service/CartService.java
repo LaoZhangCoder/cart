@@ -1,6 +1,7 @@
 package weimob.cart.server.service;
 
 import weimob.cart.api.request.CartInfoDeleteRequest;
+import weimob.cart.api.request.CartInfoListRemoveRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
 import weimob.cart.server.domain.dto.CartInfoDto;
@@ -14,7 +15,6 @@ import java.util.List;
  */
 public interface CartService {
     /**
-     *
      * @param cartInfosQuery
      * @return
      */
@@ -22,7 +22,6 @@ public interface CartService {
     List<CartInfoDto> listCartInfo(CartInfosQuery cartInfosQuery);
 
     /**
-     *
      * @param request
      * @return
      * @desciption 合并购物车
@@ -30,7 +29,6 @@ public interface CartService {
     Boolean mergeCartInfo(MergeCartInfoRequest request);
 
     /**
-     *
      * @param request
      * @return string
      * @desciption 更新购物车部分信息
@@ -38,10 +36,18 @@ public interface CartService {
     String updateCartInfo(CartInfoUpdateRequest request);
 
     /**
-     *
      * @param request
      * @return
      */
 
     String deleteCart(CartInfoDeleteRequest request);
+
+    /**
+     *
+     * @param request
+     * @return
+     * @desicption: 删除购物车集合
+     */
+    String removeCartList(CartInfoListRemoveRequest request);
+
 }

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: 老张
@@ -69,6 +70,11 @@ public class CartCookieHandle {
         for (CartInfoVo infoVo : list) {
             //包含只需要数量加一
             if (infoVo.getSkuId().equals(cartAddQuery.getId())) {
+                if (infoVo.getCount() + 1 > cartAddQuery.getGoodsNum()) {
+                    infoVo.setCount(cartAddQuery.getGoodsNum());
+                    isExclude = true;
+                    break;
+                }
                 infoVo.setCount(infoVo.getCount() + 1);
                 isExclude = true;
             }
@@ -153,5 +159,10 @@ public class CartCookieHandle {
         }
         result.remove(res);
         return getObjectToStringJson(result);
+    }
+
+    public String deleteCartByIds(List<CartInfoVo> result, List<Integer> ids) {
+        List<CartInfoVo> cartInfoVos = result.stream().filter(cartInfoVo -> !ids.contains(cartInfoVo.getSkuId())).collect(Collectors.toList());
+        return getObjectToStringJson(cartInfoVos);
     }
 }

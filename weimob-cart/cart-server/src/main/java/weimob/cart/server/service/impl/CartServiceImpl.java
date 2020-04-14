@@ -6,10 +6,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import weimob.cart.api.request.CartInfoDeleteRequest;
-import weimob.cart.api.request.CartInfoUpdateRequest;
-import weimob.cart.api.request.CartInfosSaveRequest;
-import weimob.cart.api.request.MergeCartInfoRequest;
+import weimob.cart.api.request.*;
 import weimob.cart.server.converter.CartInfoDtoConverter;
 import weimob.cart.server.dao.CartDao;
 import weimob.cart.server.dao.GoodsDao;
@@ -178,6 +175,17 @@ public class CartServiceImpl implements CartService {
         if (integer >= 1) {
             return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
         }
+        return MessageEnum.OPERATION_FAIL.getReasonPhrase();
+    }
+
+    @Override
+    public String removeCartList(CartInfoListRemoveRequest request) {
+        HashMap<String, Object> map = Maps.newHashMap();
+        map.put("userId", request.getUserId());
+        request.getSkuIds().stream().forEach(skuId -> {
+            map.put("skuId", skuId);
+            cartDao.deletesByCondition(map);
+        });
         return MessageEnum.OPERATION_FAIL.getReasonPhrase();
     }
 

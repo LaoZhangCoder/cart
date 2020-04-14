@@ -42,12 +42,11 @@ public class MergeCartInfoRequestConverter {
         return mergeCartInfoRequest;
     }
 
-    public static MergeCartInfoRequest mergeCartInfoRequest(Cookie[] cookies, CartAddQuery cartAddQuery) {
+    public static MergeCartInfoRequest mergeCartInfoRequest(CartAddQuery cartAddQuery) {
         MergeCartInfoRequest cartInfoRequest = new MergeCartInfoRequest();
-        String userId = CookieUtils.getUserIdByCookie(cookies);
-        cartInfoRequest.setUserId(userId);
+        cartInfoRequest.setUserId(cartAddQuery.getUserId());
         List<CartInfosSaveRequest> list = new ArrayList<>();
-        CartInfosSaveRequest saveRequest = CartInfosSaveRequest.builder().userId(userId).count(1).checked(1).skuId(cartAddQuery.getId()).build();
+        CartInfosSaveRequest saveRequest = CartInfosSaveRequest.builder().userId(cartAddQuery.getUserId()).count(1).checked(1).skuId(cartAddQuery.getId()).build();
         list.add(saveRequest);
         cartInfoRequest.setCartInfos(list);
         return  cartInfoRequest;

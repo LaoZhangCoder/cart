@@ -3,22 +3,21 @@ package weimob.cart.api.request;
 import cart.request.AbstractRequest;
 import cart.untils.ParamUtil;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author: 老张
- * @Date: 2020/4/13
+ * @Date: 2020/4/14
  */
-@Slf4j
 @Data
-public class CartInfoDeleteRequest extends AbstractRequest implements Serializable {
-    private static final long serialVersionUID = 6601163989720410868L;
+public class CartInfoListRemoveRequest extends AbstractRequest implements Serializable {
+    private static final long serialVersionUID = 4725521047489436793L;
     /**
-     * 商品id
+     * 商品ids
      */
-    private Integer skuId;
+    private List<Integer> skuIds;
 
     /**
      * 用户id
@@ -27,7 +26,7 @@ public class CartInfoDeleteRequest extends AbstractRequest implements Serializab
 
     @Override
     public void checkParam() {
-        ParamUtil.nonNull(skuId, "商品id不能为空");
+        ParamUtil.notEmpty(skuIds, "商品id集合不能为空");
         ParamUtil.isBlank(userId, "用户id不能为空");
     }
 }

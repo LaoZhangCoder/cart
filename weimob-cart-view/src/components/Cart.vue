@@ -110,8 +110,9 @@
                     <use xlink:href="#icon-ok"/></svg>
                 </span>
                   <span>全选</span>
-                  <span>删除选中的物品</span>
                 </a>
+                <span @click="deleteSelectGoods(cartList)">删除选中的物品</span>
+
               </div>
             </div>
             <div class="cart-foot-r">
@@ -136,6 +137,15 @@
         <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm=false">关闭</a>
       </template>
     </modal>
+    <modal :mdShow="modalConfirmTwo" @close="closeModal">
+      <template v-slot:message>
+        <p>你确认要删除此条数据吗?</p>
+      </template>
+      <template v-slot:btnGroup>
+        <a class="btn btn--m" href="javascript:;" @click="deleteAllSelectedCart()">确认</a>
+        <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirmTwo=false">关闭</a>
+      </template>
+    </modal>
   </div>
 </template>
 <style scoped>
@@ -158,10 +168,15 @@
     data() {
       return {
         cartCount: 0,
+        isIds:false,
         modalConfirm: false,
+        modalConfirmTwo: false,
         delItem: '',
         cartList: [],
-        selectList:[],
+        skuIds: {
+          ids: []
+        },
+        selectList: [],
         updateCartParam: {
           isChecked: false,
           isAllChecked: false,
@@ -213,6 +228,7 @@
           this.cartList = res.result;
           this.cartCount = this.cartList.length
         })
+
       },
       editCart(type, item) {
         if (type == 'add') {
@@ -244,6 +260,13 @@
             message: "该商品限购" + item.goodsNum + "！",
             duration: 2000
           });
+          this.updateCartParam.isChecked = false
+          this.updateCartParam.isAllChecked = false
+          this.updateCartParam.isCount = true
+          this.updateCartParam.count = item.count
+          this.updateCartParam.skuId = item.skuId
+          this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
+          })
         } else {
           this.updateCartParam.isChecked = false
           this.updateCartParam.isAllChecked = false
@@ -255,48 +278,70 @@
         }
 
       },
-      delCartConfirm(item) {
-        this.delItem = item;
-        this.modalConfirm = true;
-
-      },
-      deleteSelectGoods1(list) {
-        this.selectList = list;
-        this.modalConfirm = true;
-      },
-      closeModal() {
-        this.modalConfirm = false;
-      },
-      delCart() {
-        let delItem = this.delItem;
-        let cartId = this.delItem.skuId
-        this.cartList.forEach((item, index) => {
-          if (delItem.skuId == item.skuId) {
-            this.cartList.splice(index, 1);
-            this.modalConfirm = false;
-          }
-        })
-        this.$ajax.delete("/api/cart/deleteCart/" + cartId).then((response) => {
-          if (response.data.success) {
-            location.reload();
-          }
-        })
-      },
-      toggleCheckAll() {
-        let flag = !this.checkAllFlag;
+      deleteAllSelectedCart() {
         this.cartList.forEach((item) => {
-          item.checked = flag;
-        })
-        this.allSelected()
-      },
-      checkOut() {
-        if (this.checkedCount) {
-          this.$router.push({
-            path: '/address'
+          if (item.checked == 1) {
+            this.isIds = true;
+            this.skuIds.ids.push(item.skuId);
+            this.modalConfirmTwo = false;
+          }
+        });
+        this.modalConfirmTwo = false;
+
+        if (this.isIds) {
+          this.$ajax.post("/api/cart/allSelect", this.skuIds).then((response) => {
+            if (response.data.success) {
+              this.skuIds.ids = []
+              location.reload();
+            }
           })
+        } else {
+          this.isIds=false;
+          alert("请至少选择一件商品！")
         }
+      },
+    delCartConfirm(item) {
+      this.delItem = item;
+      this.modalConfirm = true;
+    },
+    deleteSelectGoods(itemList) {
+      this.selectList = itemList
+      this.modalConfirmTwo = true;
+    },
+    closeModal() {
+      this.modalConfirm = false;
+      this.modalConfirmTwo = false;
+    },
+    delCart() {
+      let delItem = this.delItem;
+      let cartId = this.delItem.skuId
+      this.cartList.forEach((item, index) => {
+        if (delItem.skuId == item.skuId) {
+          this.cartList.splice(index, 1);
+          this.modalConfirm = false;
+        }
+      })
+      this.$ajax.delete("/api/cart/deleteCart/" + cartId).then((response) => {
+        if (response.data.success) {
+          location.reload();
+        }
+      })
+    },
+    toggleCheckAll() {
+      let flag = !this.checkAllFlag;
+      this.cartList.forEach((item) => {
+        item.checked = flag;
+      })
+      this.allSelected()
+    },
+    checkOut() {
+      if (this.checkedCount) {
+        this.$router.push({
+          path: '/address'
+        })
       }
     }
+  }
 
   }
 </script>

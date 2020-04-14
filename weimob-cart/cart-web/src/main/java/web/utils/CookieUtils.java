@@ -1,5 +1,6 @@
 package web.utils;
 
+import cart.untils.ParamUtil;
 import lombok.extern.slf4j.Slf4j;
 import web.constants.CookieConstant;
 import web.response.UserInfoVo;
@@ -51,13 +52,16 @@ public class CookieUtils {
         return Arrays.stream(cookies).filter(cookie -> CookieConstant.COOKIE_CART_NAME.equals(cookie.getName())).map(Cookie::getValue).collect(Collectors.toList()).get(0);
     }
 
-    public static  String getUserIdByCookie(Cookie[] cookies){
+    public static String getUserIdByCookie(Cookie[] cookies) {
+        if (cookies == null || cookies.length <= 0) {
+            return null;
+        }
         for (Cookie cookie : cookies) {
             if (CookieConstant.COOKIE_USER_NAME.equals(cookie.getName())) {
                 return cookie.getValue().substring(0, cookie.getValue().indexOf(":"));
             }
         }
-        return  null;
+        return null;
     }
 
     public static void delCartCookie(HttpServletResponse response, String cookieName) {

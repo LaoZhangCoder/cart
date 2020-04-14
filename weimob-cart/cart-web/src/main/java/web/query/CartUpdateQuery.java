@@ -7,7 +7,7 @@ import lombok.Data;
  * @Date: 2020/4/2
  */
 @Data
-public class CartUpdateQuery {
+public class CartUpdateQuery extends AbstractQuery{
     /**
      * 用户id
      */
@@ -36,4 +36,9 @@ public class CartUpdateQuery {
      * 商品id
      */
     private Integer skuId;
+
+    @Override
+    public void checkParam() {
+
+    }
 }

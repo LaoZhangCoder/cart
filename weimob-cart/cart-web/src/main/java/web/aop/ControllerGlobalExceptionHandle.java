@@ -8,6 +8,11 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+import web.query.AbstractQuery;
+import web.utils.CookieUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @Author: 老张
@@ -28,14 +33,32 @@ public class ControllerGlobalExceptionHandle {
 
     @Around("controllerPointcut()")
     public Object doAround(ProceedingJoinPoint pjp) {
+        AbstractQuery abstractQuery = null;
+        boolean isHttpRequest = false;
+        int httpRequestIndex = 0;
         Object[] args = pjp.getArgs();
         try {
             if (args != null && args.length > 0) {
                 for (int var = 0; var < args.length; var++) {
-                    if (pjp.getArgs()[var] instanceof AbstractRequest) {
-                        AbstractRequest request = (AbstractRequest) pjp.getArgs()[var];
-                        request.checkParam();
+                    if (pjp.getArgs()[var] instanceof AbstractQuery) {
+                        abstractQuery = (AbstractQuery) pjp.getArgs()[var];
+                        abstractQuery.checkParam();
                     }
+                    if (pjp.getArgs()[var] instanceof HttpServletRequest) {
+                        isHttpRequest = true;
+                        httpRequestIndex = var;
+                    }
+                }
+            }
+            if (abstractQuery != null) {
+                if (isHttpRequest) {
+                    HttpServletRequest request = (HttpServletRequest) pjp.getArgs()[httpRequestIndex];
+                    boolean isLogin = CookieUtils.isLogin(request.getCookies());
+                    boolean excludeCookieCart = CookieUtils.isExcludeCookieCart(request.getCookies());
+                    abstractQuery.setLogin(isLogin);
+                    abstractQuery.setCookieCart(excludeCookieCart);
+                    abstractQuery.setUserId(CookieUtils.getUserIdByCookie(request.getCookies()));
+
                 }
             }
         } catch (IllegalArgumentException e) {

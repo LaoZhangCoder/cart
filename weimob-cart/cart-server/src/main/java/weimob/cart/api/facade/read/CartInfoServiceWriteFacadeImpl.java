@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
 import weimob.cart.api.request.CartInfoDeleteRequest;
+import weimob.cart.api.request.CartInfoListRemoveRequest;
 import weimob.cart.api.request.CartInfoUpdateRequest;
 import weimob.cart.api.request.MergeCartInfoRequest;
 import weimob.cart.server.service.CartService;
@@ -35,5 +36,10 @@ public class CartInfoServiceWriteFacadeImpl implements CartInfoServiceWriteFacad
     @Override
     public Response<String> deleteCart(CartInfoDeleteRequest request) {
         return Response.ok(cartService.deleteCart(request));
+    }
+
+    @Override
+    public Response<String> removeCartList(CartInfoListRemoveRequest request) {
+        return Response.ok(cartService.removeCartList(request));
     }
 }
