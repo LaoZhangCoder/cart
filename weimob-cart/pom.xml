@@ -19,12 +19,13 @@
         <lombok.version>1.18.4</lombok.version>
         <spring.boot.web.version>2.1.8.RELEASE</spring.boot.web.version>
         <spring.boot.aop>2.1.4.RELEASE</spring.boot.aop>
+        <redis.version>2.1.6.RELEASE</redis.version>
+        <redis.cache>2.0.3.RELEASE</redis.cache>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -79,6 +80,16 @@
     </build>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-cache</artifactId>
+                <version>${redis.cache}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+                <version>${redis.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>

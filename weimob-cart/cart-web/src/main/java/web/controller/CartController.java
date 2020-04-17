@@ -5,11 +5,16 @@ import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import web.constants.RedisConstant;
 import web.converter.*;
 import web.cookie.CartCookieHandle;
-import web.query.*;
+import web.query.CartAddQuery;
+import web.query.CartDeleteQuery;
+import web.query.CartInfoQuery;
+import web.query.CartUpdateQuery;
 import web.response.CartInfoVo;
 import web.utils.CookieUtils;
+import web.utils.RedisClientUtils;
 import weimob.cart.api.facade.CartInfoServiceReadFacade;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
 import weimob.cart.api.facade.GoodsServiceReadFacade;
@@ -45,9 +50,13 @@ public class CartController {
     @Reference
     private GoodsServiceReadFacade goodsServiceReadFacade;
 
+    @Autowired
+    private RedisClientUtils redisClientUtils;
+
     @PostMapping(value = "add")
     public Response<String> addGoods(HttpServletRequest request, HttpServletResponse response, @RequestBody CartAddQuery cartAddQuery) {
         if (cartAddQuery.getLogin()) {
+            redisClientUtils.deleteCache(RedisConstant.KEY, cartAddQuery.getUserId());
             MergeCartInfoRequest cartInfoRequest = MergeCartInfoRequestConverter.mergeCartInfoRequest(cartAddQuery);
             boolean isSuccess = cartInfoServiceWriteFacade.mergeCartInfo(cartInfoRequest).getResult();
             if (isSuccess) {
@@ -68,9 +77,14 @@ public class CartController {
     public Response<List<CartInfoVo>> listCarts(HttpServletRequest request, CartInfoQuery cartInfoQuery) {
         //判断用户是否登录，未登录则从本地cookie获取购物车数据
         if (cartInfoQuery.getLogin()) {
-            List<CartInfo> result = cartInfoServiceReadFacade.listCartInfos(CookieUtils.getUserIdByCookie(request.getCookies())).getResult();
+            List<CartInfo> result;
+            if ((result = redisClientUtils.getCache(RedisConstant.KEY, cartInfoQuery.getUserId())) == null) {
+                result = cartInfoServiceReadFacade.listCartInfos(CookieUtils.getUserIdByCookie(request.getCookies())).getResult();
+            }
             if (result.isEmpty()) {
                 return Response.ok(null);
+            } else {
+                redisClientUtils.save(RedisConstant.KEY, cartInfoQuery.getUserId(), result, RedisConstant.TTL);
             }
             List<GoodsInfo> goodsInfos = goodsServiceReadFacade.getGoodsInfos().getResult();
             Response<List<CartInfoVo>> listResponse = CartInfoVoResponseConverter.listCartInfVo(result, goodsInfos);
@@ -85,6 +99,7 @@ public class CartController {
     @PatchMapping(value = "updateCartInfo")
     public Response<String> updateCartInfo(HttpServletRequest request, @RequestBody CartUpdateQuery cartUpdateQuery, HttpServletResponse response) {
         if (cartUpdateQuery.getLogin()) {
+            redisClientUtils.deleteCache(RedisConstant.KEY, cartUpdateQuery.getUserId());
             CartInfoUpdateRequest cartInfoUpdateRequest = CartInfoUpdateRequestConverter.getCartInfoUpdateRequest(request, cartUpdateQuery);
             return cartInfoServiceWriteFacade.updateCartInfo(cartInfoUpdateRequest);
         }
@@ -104,6 +119,7 @@ public class CartController {
         boolean isExistCart = CookieUtils.isExcludeCookieCart(request.getCookies());
         if (isLogin) {
             String userId = CookieUtils.getUserIdByCookie(request.getCookies());
+            redisClientUtils.deleteCache(RedisConstant.KEY, userId);
             CartInfoDeleteRequest cartInfoDeleteRequest = CartInfoDeleteRequestConverter.cartInfoDeleteRequest(userId, id);
             Response<String> stringResponse = cartInfoServiceWriteFacade.deleteCart(cartInfoDeleteRequest);
             if (stringResponse.isSuccess()) {
@@ -127,6 +143,7 @@ public class CartController {
     public Response<String> deleteSelectCart(HttpServletResponse response, HttpServletRequest request, @RequestBody CartDeleteQuery skuIds) {
         if (skuIds.getLogin()) {
             String userId = CookieUtils.getUserIdByCookie(request.getCookies());
+            redisClientUtils.deleteCache(RedisConstant.KEY, userId);
             CartInfoListRemoveRequest cartInfoListRemoveRequest = CartInfoListRemoveRequestConverter.cartInfoListRemoveRequest(userId, skuIds.getIds());
             Response<String> stringResponse = cartInfoServiceWriteFacade.removeCartList(cartInfoListRemoveRequest);
             if (stringResponse.isSuccess()) {

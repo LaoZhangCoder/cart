@@ -20,4 +20,3 @@ mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
   type-aliases-package: weimob.cart.server.domain.model
 
-

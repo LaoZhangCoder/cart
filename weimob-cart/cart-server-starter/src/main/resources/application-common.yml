@@ -12,4 +12,4 @@ dubbo:
     name: dubbo
     port: 26880
 logging:
-    file: logs/cart-server.log
+  file: logs/cart-server.log

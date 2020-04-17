@@ -3,6 +3,7 @@ package web.controller;
 import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Reference;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import web.constants.CookieConstant;
 import web.converter.MergeCartInfoRequestConverter;
@@ -11,6 +12,7 @@ import web.converter.UserInfoVoResponseConverter;
 import web.query.UserLoginQuery;
 import web.response.UserInfoVo;
 import web.utils.CookieUtils;
+import web.utils.RedisClientUtils;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
 import weimob.cart.api.facade.UserInfoServiceReadFacade;
 import weimob.cart.api.request.MergeCartInfoRequest;
@@ -32,7 +34,6 @@ public class UserController {
     private UserInfoServiceReadFacade userInfoServiceReadFacade;
     @Reference
     private CartInfoServiceWriteFacade cartInfoServiceWriteFacade;
-
     @PostMapping(value = "login")
     public Response<UserInfoVo> checkLogin(@RequestBody UserLoginQuery query, HttpServletRequest request, HttpServletResponse response) {
         Response<UserInfoVo> userInfoVoResponse = new Response<>();
@@ -40,7 +41,7 @@ public class UserController {
         Response<UserInfo> userInfo = userInfoServiceReadFacade.getUserInfo(userInfoRequest);
         if (userInfo.isSuccess()) {
             //用户登录成功即合并本地cookie购物车数据
-            // TODO: 2020/4/11 同步过程需要用户add操作同步
+            // 合并的时候禁止用户添加商品到购物车因此加锁
             return getUserInfoVoResponse(request, response, userInfoVoResponse, userInfo);
         }
         userInfoVoResponse.setError(userInfo.getError());
