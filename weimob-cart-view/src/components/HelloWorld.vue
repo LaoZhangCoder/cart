@@ -4,6 +4,8 @@
     <div style="width:90% ">
       <div v-for="good in goods" class="gl-i-wrap j-sku-item">
         <div class="p-img">
+          <a style="display: none">{{good.id}}</a>
+          <a style="display: none">{{good.goodsNum}}</a>
           <a target="_blank">
             <img width="220" height="220" data-img="1"
                  src="//img14.360buyimg.com/n7/jfs/t1/96505/26/15113/79912/5e6ec8a5Eb6d8546c/0cc2d2120993ffaf.jpg">
@@ -17,7 +19,7 @@
               {{good.goodsName}} </em>
           </a>
         </div>
-        <a class="p-o-btn addCart"><i></i>加入购物车</a>
+        <a class="p-o-btn addCart" v-on:click="addCart(good)"><i></i>加入购物车</a>
       </div>
     </div>
   </div>
@@ -25,14 +27,15 @@
 </template>
 <script>
   import HeaderCommon from './HeaderCommon'
+
   export default {
     name: 'app',
-    components:{
+    components: {
       HeaderCommon
     },
     data() {
       return {
-        goods: [],
+        goods: []
 
       }
     },
@@ -40,6 +43,16 @@
       this.$ajax.get("/api/goods/list").then((response) => {
         this.goods = response.data.result;
       })
+    },
+    methods: {
+      addCart(good) {
+        this.$message({
+          message: '添加成功!',
+          duration: 1000
+        });
+        this.$ajax.post("/api/cart/add", good).then((response) => {
+        })
+      }
     }
 
 

@@ -1,15 +1,18 @@
 package weimob.cart.api.facade.read;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import cart.response.Response;
 import com.alibaba.dubbo.config.annotation.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import weimob.cart.api.facade.GoodsServiceReadFacade;
 import weimob.cart.api.response.GoodsInfo;
-import weimob.cart.server.manager.GoodsManager;
+import weimob.cart.server.domain.dto.GoodsDto;
+import weimob.cart.server.service.GoodsService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: 老张
@@ -22,11 +25,21 @@ import java.util.List;
 public class GoodsServiceReadFacadeImpl implements GoodsServiceReadFacade {
 
     @Autowired
-    private GoodsManager goodsManager;
+    private GoodsService goodsService;
 
     @Override
-    public List<GoodsInfo> getGoodsInfos() {
-        return goodsManager.getGoods();
+    public Response<List<GoodsInfo>> getGoodsInfos() {
+        List<GoodsDto> goodsInfos = goodsService.getGoodsInfos();
+        return Response.ok(goodsInfoListConverter(goodsInfos));
+    }
+
+    private List<GoodsInfo> goodsInfoListConverter(List<GoodsDto> goodsInfos) {
+        List<GoodsInfo> collect = goodsInfos.stream().map(goodsDto -> {
+            GoodsInfo goodsInfo = new GoodsInfo();
+            BeanUtils.copyProperties(goodsDto, goodsInfo);
+            return goodsInfo;
+        }).collect(Collectors.toList());
+        return collect;
     }
 
 }

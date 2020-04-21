@@ -3,9 +3,9 @@ package weimob.cart.server.service.impl;
 import cart.exception.ServiceException;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import weimob.cart.server.converter.UserInfoDtoConverter;
 import weimob.cart.server.dao.UserInfoDao;
 import weimob.cart.server.domain.dto.UserInfoDto;
 import weimob.cart.server.domain.model.UserInfoDo;
@@ -28,15 +28,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public UserInfoDto getUserInfo(UserInfoQuery request) {
         HashMap<String, Object> map = Maps.newHashMap();
-        UserInfoDto userInfoDto = new UserInfoDto();
         map.put("phoneNumber", request.getPhoneNumber());
         map.put("password", request.getPassword());
         UserInfoDo userInfoDo = this.userInfoDao.findByUniqueIndex(map);
         if (userInfoDo == null) {
-            log.warn("不存在该用户!");
-            return null;
+            log.warn("不存在该用户!",request.toString());
+            throw new ServiceException("用户名或者密码错误!");
         }
-        BeanUtils.copyProperties(userInfoDo, userInfoDto);
+        UserInfoDto userInfoDto = UserInfoDtoConverter.userInfoDto(userInfoDo);
         return userInfoDto;
     }
 }

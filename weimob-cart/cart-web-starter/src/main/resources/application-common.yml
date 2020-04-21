@@ -12,4 +12,10 @@ dubbo:
     name: dubbo
     port: 26880
 logging:
-    file: logs/cart-server.log
+  file: logs/cart-server.log
+
+
+spring:
+  redis:
+    host: 47.106.115.24
+    port: 6379

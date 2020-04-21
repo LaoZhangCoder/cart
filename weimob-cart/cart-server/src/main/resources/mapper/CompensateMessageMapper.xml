@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="CompensateMessageDo">
+    <resultMap id="BaseResultMap" type="CompensateMessageDo">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="context" property="context" jdbcType="VARCHAR"/>
+        <result column="msg_id" property="msgId" jdbcType="VARCHAR"/>
+        <result column="biz_type" property="bizType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, context, msg_id, status, create_date,update_date
+    </sql>
+    <sql id="criteria">
+        <where>
+        and status=0
+        </where>
+    </sql>
+    <sql id="table_name">compensate_message</sql>
+    <select id="list" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        <include refid="table_name"/>
+        <include refid="criteria"/>
+    </select>
+    <select id="findByUniqueIndex" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        <include refid="table_name"/>
+        <include refid="criteria"/>
+    </select>
+    <delete id="deletesBycondition" parameterType="map">
+        delete from
+        <include refid="table_name"/>
+        <include refid="criteria"/>
+    </delete>
+    <insert id="create" parameterType="CompensateMessageDo">
+        insert into
+        <include refid="table_name"/>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test=" context != null">
+                context,
+            </if>
+            <if test=" msgId != null">
+                msg_id,
+            </if>
+            <if test=" bizType != null">
+                biz_type,
+            </if>
+            <if test=" status != null">
+                status,
+            </if>
+            <if test=" createDate != null">
+                create_date,
+            </if>
+            <if test=" updateDate != null">
+                update_date,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="context != null">
+                #{context,jdbcType=VARCHAR},
+            </if>
+            <if test="msgId != null">
+                #{msgId,jdbcType=BIGINT},
+            </if>
+            <if test="bizType != null">
+                #{bizType,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="createDate != null">
+                #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateDate != null">
+                #{updateDate,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="update" parameterType="CompensateMessageDo">
+        UPDATE
+        <include refid="table_name"/>
+        <set>
+            <if test="id != null">`id` = #{id},</if>
+            <if test="context != null">`context` = #{context},</if>
+            <if test="msgId != null">`msg_id` = #{msgId},</if>
+            <if test="bizType != null">`biz_type` = #{bizType},</if>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="createDate != null">`create_date` = #{createDate},</if>
+            <if test="updateDate != null">`update_date` = #{updateDate},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        delete from
+        <include refid="table_name"/>
+        WHERE id = #{id}
+    </delete>
+</mapper>

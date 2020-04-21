@@ -1,0 +1,784 @@
+ 码出高效学习笔记
+   1.命名风格:  ① 命名不能以下划线和美元符号开头和结尾，方法名、参数名、成员变量、局部变量使用骆驼命名法等
+               ② 变量的命名使用全英文，除了一些特殊的可以使用拼音，比如地名
+               ③ 命名也要能够体现出其含义包括变量的命名，方法的命名都要体现出其含义等等一些规则
+
+  2.常量定义:  ① 不允许未经定义的常量直接出现在代码中，因为很难读懂其含义，因此需要命名
+              ② 不要用一个常量类维护所有常量，需要分类等
+              ③ 如果一个变量固定在几个值变化需要用枚举
+
+  3.代码格式： ① 采用四空缩进
+              ② 任何二目、三目运算符的左右两边都需要加一个空格。
+
+  4.OOP规约:  ① 避免通过一个类的对象引用访问此类的静态变量或静态方法，无谓增加编译器解析成本，直接用类名来访问即可
+              ② 所有的覆写方法，必须加@Override 注解。
+              ③ 外部正在调用或者二方库依赖的接口，不允许修改方法签名，避免对接口调用方产生影响。接口过时必须加@Deprecated 注解，并清晰地说明采用的新接口或者新服务是什么。
+              ④ 所有的相同类型的包装类对象之间值的比较，全部使用equals方法比较
+              ⑤ 慎用 Object 的 clone 方法来拷贝对象。
+
+
+ 码出高效学习笔记Ⅱ
+     5.集合处理:    ①  对象重写了equals就必须重写hashcode，不然和容器结合使用过程中会出现错误
+                    ②  不要在foreach循环中进行删除操作，删除请使用Iterator进行
+                    ③  集合初始化最好给定大小
+
+     6.并发处理:    ① 线程资源必须通过线程池提供，不允许在应用中自行显式创建线程。
+                    ② 线程池不允许使用 Executors 去创建，而是通过 ThreadPoolExecutor 的方式，这样 的处理方式让写的同学更加明确线程池的运行规则，规避资源耗尽的风险。
+                    ③ 日期相关类的用Java8提供的最新API
+                    ④ 对多个资源、数据库表、对象同时加锁时，需要保持一致的加锁顺序，否则可能会造 成死锁。
+
+    7. 控制语句:     ① 在 if/else/for/while/do 语句中必须使用大括号。即使只有一行代码，避免采用 单行的编码方式：if (condition) statements;
+                     ② 在高并发场景中，避免使用”等于”判断作为中断或退出的条件。
+                     ③ 表达异常的分支时，少用 if-else 方式，都拆分成if return语句
+                     ④ 避免采用取反逻辑运算符，不好理解
+
+    8. 注释规约:     ① 类、类属性、类方法的注释必须使用 Javadoc 规范，使用/**内容*/格式，不得使用 // xxx 方式。
+                     ② 所有的抽象方法（包括接口中的方法）必须要用 Javadoc 注释、除了返回值、参数、 异常说明外，还必须指出该方法做什么事情，实现什么功能。
+                     ③ 所有的类都必须添加创建者和创建日期。
+                     ④ 所有的枚举类型字段必须要有注释，说明每个数据项的用途。
+
+
+     码出高效学习笔记III
+
+     9.异常处理:      ① Java类库中定义的可以通过预检查方式规避的RuntimeException 异常不应该通过catch的方式来处理，比如：NullPointerException，IndexOutOfBoundsException等等
+                      ② 异常不要用来做流程控制，条件控制。
+
+    10.日志规约:      ①  应用中不可直接使用日志系统（Log4j、Logback）中的API，而应依赖使用日志框架 SLF4J 中的API，使用门面模式的日志框架，有利于维护和各个类的日志处理方式统一。
+                      ② 应用中的扩展日志（如打点、临时监控、访问日志等）命名方式： appName_logType_logName.log。
+                      ③ 可以使用 warn 日志级别来记录用户输入参数错误的情况，避免用户投诉时，无所适从。如非必要，请不要在此场景打出error级别，避免频繁报警。
+                      ④ 谨慎地记录日志。生产环境禁止输出debug日志；有选择地输出 info 日志；如果使用warn来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘 撑爆并记得及时删除这些观察日志。
+
+
+
+
+
+
+
+
+
+     码出高效学习笔记VI
+
+    11. 单元测试:   ① 单元测试的基本目标：语句覆盖率达到 70%；核心模块的语句覆盖率和分支覆盖率都 要达到 100%
+                     ② 单元测试作为一种质量保障手段，不建议项目发布后补充单元测试用例，建议在项目提测前完成单元测试。
+
+
+    12. 安全规约：   ① 隶属于用户个人的页面或者功能必须进行权限控制校验。
+                     ② 用户请求传入的任何参数必须做有效性验证。
+
+    13. 建表规约:   ①  表达是与否概念的字段，必须使用 is_xxx 的方式命名，数据类型是 unsigned tinyint
+                    ② 表名不使用复数名词。
+                    ③ 小数类型为 decimal，禁止使用 float 和 double。 容易造成精度丢失
+                    ④ 表必备三字段：id, gmt_create, gmt_modified。
+
+    14. 索引规约:   ① 业务上具有唯一特性的字段，即使是多个字段的组合，也必须建成唯一索引。
+                    ② 在varchar 字段上建立索引时，必须指定索引长度，没必要对全字段建立索引，根据 实际文本区分度决定索引长度即可。
+                    ③ 利用覆盖索引来进行查询操作，避免回表。
+                    ④ 利用延迟关联或者子查询优化超多分页场景。
+                    ⑤ 建组合索引的时候，区分度最高的在最左边。
+
+    15.SQL语句:     ① 在代码中写分页查询逻辑时，若 count 为 0 应直接返回，避免执行后面的分页语句。
+                    ② 数据订正（特别是删除、修改记录操作）时，要先 select，避免出现误删除，确认无误才能执行更新语句。 即先select再delete
+
+
+    spring实战学习总结笔记IV
+
+    4. 面向切面的Spring:  ① 什么是面向切面编程: 面向切面编程不同于继承结构，它更关注的是横向切入点，横向方向的通用功能或者逻辑，比如参数校验，安全校验
+                          ② 定义AOP术语: 有通知(Advice), 连接点(Join point) ,切点(Pointcut)， 切面(Aspect)等
+                          ③ spring对AOP的支持: spring通过了四种方式:基于代理的Spring AOP; 纯POJO切面; @AspectJ注解驱动的切面；注入式AspectJ切面（适用于Spring各版本）。前三种都是Spring AOP实现的变体.
+                          Spring AOP构建在动态代理基础之上，因此，Spring对AOP的支持局限于方法拦截。
+                          ④spring切面的创建有两种方式:使用注解@AspectJ(常用)或者在XML中声明切面
+
+
+ 今天观看了每日一课当中的DDD模型入门知识。在对业务进行微服务拆分的时候。DDD模型可以有微服务结合使用，DDD模型可以指导复杂的系统进行合理的拆分。
+ 以及Spring知识和码出高效学习笔记
+
+
+   spring实战学习总结笔记V
+
+   5. 构建Spring Web应用程序: ① 跟踪Spring MVC的请求: 前端控制器：所有的请求都会通过一个前端控制器Servlet来处理。处理器映射器(HandleMapping): 来确定请求的下一站在哪里。处理器映射会根据请求所携带的URL信息来进行决策。
+                              控制器:到了控制器，请求会卸下其负载（用户提交的信息）并 耐心等待控制器处理这些信息。 视图解析器:负责解析控制层返回的ModelAndView变成view对象返回给浏览器
+                              ② 编写基本的控制器: 在Spring MVC中，控制器只是方法上添加了@RequestMapping注解的类，这个注解声明了它们所要处理的请求。
+                              ③ 接收请求的输入: 查询参数(@RequestParam),表单参数,路径变量(@PathVariable)
+                              ④ 校验参数: 可以通过@AssertFalse, @Max, @Null ,@NotNull,等一些注解
+
+  Mybatis学习笔记总结I
+
+  1.Mybatis缓存: ① 一级缓存默认强制开启，使用Map结构作为本地内存,放入时机为查询完成后put，隶属于SqlSession对象。当查询在同一个SqlSession当中并且查询条件完全相同即从map中返回。
+                    SqlSession关闭即失效(缓存会被清除)。
+                 ② 二级缓存根据配置开启，Map结构存储。隶属全局Configuration对象。对不同SqlSession共享。查询条件相同即可从缓存中获取。
+                  基于namespace隔离(作为key)，故如果不同namespace定义了同时操作一个表的SQL语句，即一张表的操作放在一个Mapper.XML文件当中。否则可能则会造成不同namespace之间的缓存不一致问题
+                 ③ 缓存清除策略: LRU – 最近最少使用：移除最长时间不被使用的对象(默认)。
+                                 FIFO – 先进先出：按对象进入缓存的顺序来移除它们。
+                                 SOFT – 软引用：基于垃圾回收器状态和软引用规则移除对象。
+                                 WEAK – 弱引用：更积极地基于垃圾收集器状态和弱引用规则移除对象。
+
+
+ Mybatis学习笔记总结II
+
+ 1.动态SQL: ① if标签:使用动态 SQL 最常见情景是根据条件包含 where 子句的一部分.常用于查询参数拼接
+            ② choose、when、otherwise: 有时候，相比于if如果我们不想使用所有的条件，而只是想从多个条件中选择一个使用。
+            针对这种情况，MyBatis 提供了 choose 元素，它有点像 Java 中的 switch 语句。
+            ③ where标签: where 元素只会在子元素返回任何内容的情况下才插入 “WHERE” 子句。而且，若子句的开头为 “AND” 或 “OR”，where 元素也会将它们去除。
+            ④ trim标签: 可以自定义标签元素。比如<trim prefix="WHERE" prefixOverrides="AND |OR "></trim>等价于where
+            ⑤ set元素: set元素可以用于动态包含需要更新的列，忽略其它不更新的列.
+            ⑥ foreach：动态 SQL 的另一个常见使用场景是对集合进行遍历（尤其是在构建 IN 条件语句的时候）。
+            ⑦ bind元素: 元素允许你在 OGNL 表达式以外创建一个变量，并将其绑定到当前的上下文。
+
+
+spring实战学习总结笔记VI
+
+ 7 SpringMVC的高级技术： ① 处理multipart形式的数据方法: CommonsMultipartResolver：使用Jakarta Commons FileUpload解析multipart请求;
+                           StandardServletMultipartResolver：依赖于Servlet 3.0对multipart请求的支持（始于Spring 3.1）。
+                         ② 处理异常: @ControllerAdvice表明该类为同意异常处理类，最为实用的一个场景就是将所有的@ExceptionHandler方法收集到一个类中，这样所有控制器的异常就能在一个地方进行一致的处理
+                                      @ExceptionHandler(value)注解标注的方法，value标识要捕获的异常;
+                         ③ 跨重定向请求传递参数: 通过url模板进行重定向，通过讲参数拼接到路径后面，注意将参数进行转义，可通过Model对象操作；使用flash属性
+
+
+spring实战学习总结笔记VII
+   1.使用Redis操作key-value数据:  ① 连接到redis: spring为客户端提供了四种连接工厂: JedisConnectionFactory JredisConnectionFactory LettuceConnectionFactory SrpConnectionFactory
+                                 ② 使用RedisTemplate: 实际上SpringData提供了两个模板RedisTemplate StringRedisTemplate RedisTemplate可以极大地简化Redis数据访问，能够让我们持久化各种类型的key和value，并不局限于字节数组。
+                                  在认识到key和value通常 是String类型之后，StringRedisTemplate扩展了RedisTemplate，只关注String类型。
+                                 ③ 常用API: opsForValue() <K, V> 操作具有简单值的条目
+                                            opsForList()  <K, V> 操作具有list值的条目
+                                            opsForSet()   <K, V> 操作具有set值的条目
+                                            opsForZSet()  <K, V> 操作具有ZSet值（排序的set）的条目
+                                            opsForHash()  <K, HK, HV> 操作具有hash值的条目
+                                 ④ 使用key和value的序列化器： GenericToStringSerializer：使用Spring转换服务进行序列化
+                                                             JacksonJsonRedisSerializer：使用Jackson 1，将对象序列化为JSON；
+                                                             Jackson2JsonRedisSerializer：使用Jackson 2，将对象序列化为JSON；
+                                                             JdkSerializationRedisSerializer：使用Java序列化；
+                                                             OxmSerializer：使用Spring O/X映射的编排器和解排器（marshaler和unmarshaler）实现序列化，用于XML序列化；
+                                                             StringRedisSerializer：序列化String类型的key和value
+SpringBoot学习总结III
+    1.日志记录: ① Spring Boot 使用 Commons Logging 记录所有内部日志，但开放日志的底层实现。其为 Java Util Logging 、Log4J2 和 Logback 提供了默认配置。
+                   默认情况下，如果您使用了 Starter，则使用 Logback 进行日志记录。
+               ② 控制台输出: 默认日志配置会在写入时将消息回显到控制台。默认情况下，会记录 ERROR、WARN 和 INFO 级别的日志。您还可以通过使用 --debug 标志启动应用程序来启用调试模式。
+               ③ 文件输出: 默认情况下，Spring Boot 仅记录到控制台，不会写入日志文件。想除了控制台输出之外还要写入日志文件，则需要设置 logging.file 或 logging.path 属性（必须二选一，在 application.properties 中）。
+               日志文件在达到 10MB 时会轮转，并且与控制台输出一样，默认情况下会记录 ERROR、WARN 和 INFO 级别的内容。
+               可以使用 logging.file.max-size 属性更改大小限制。除非已设置 logging.file.max-history 属性，否则以前轮转的文件将无限期归档。
+               ④ 日志等级: TRACE、DEBUG、INFO、WARN、ERROR、
+
+    2.JSON: ① Spring Boot 为三个 JSON 映射库提供了内置集成：
+              GSON: Spring Boot 提供 Gson 的自动配置
+              Jackson:Jackson 是首选和默认的库。 springboot默认自动注入，会自动配置 ObjectMapper bean
+              JSON-B: Spring Boot 提供 Gson 的自动配置
+
+
+
+
+SpringCloud学习总结I
+          1.服务治理: ① Eureka服务端: 我们也称为服务注册中心。它同其他服务注册中心一样，支持高可用 配置。它依托于强一致性提供良好的服务实例可用性，可以应对多种不同的故障场景。
+                        如果Eureka以集群模式部署，当集群中有分片出现故障时，那么Eureka就转入自我保护模式。它允许在分片故障期间继续提供服务的发现和注册，当故障分片恢复运行时，集群中的其他分片会把它们的状态再次同步回来。
+                      ② Eureka客户端：主要处理服务的注册与发现。客户端服务通过注解和参数配置的方式， 嵌入在客户端应用程序的代码中，在应用程序运行时，Euerka客户端向注册中心注册自身 提供的服务并周期性地发送心跳来更新它的服务租约。
+                        同时，它也能从服务端查询当前注 册的服务信息并把它们缓存到本地并周期性地刷新服务状态。
+         2.搭建服务注册中心: ① 引入相关依赖通过@EnableEurekaServer 注解启动一个服务注册中心提供给其他应用进行对话。只需在springboot引入中添加这个注解就行
+                               默认情况下该服务注册中心会将自己作为客户端注册它自己，所以我们需要禁用他的客户端行为，通过在配置文件中配置
+                               eureka.client.register-with-eureka=false ：由于该应用为注册中心，所以设置为false, 代表不向注册中心注册自己。
+                               eureka.client.fetch-registry=false ： 由于注册中心的职责就是维护服务实例，它并不需要去检索服务，所以也设置为 false。
+
+         3.注册服务提供者: ① 引入相关依赖，然后，在主类中通过加上@EnableDiscoveryClient 注解，激活 Eureka 中的 DiscoveryClient实现（自动化配置创建DiscoveryClient接口针对Eureka客户端的EurekaDiscoveryClient 实例）
+                           之后在属性文件当中配置应用名和注册中心的地址：
+                           spring.application.name:##
+                           eureka.client.serviceUrl.defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+        4.高可用注册中心 :在微服务架构这样的分布式环境中，我们需要充分考虑发生故障的情况，所以在生产 环境中必须对各个组件进行高可用部署，对于微服务如此， 对于服务注册中心也一样。
+                         可以通过 eureka.client.serviceUrl.defaultZone设置其他注册中心的地址形成集群
+
+
+
+SpringCloud学习总结II
+     1.客户端的负载均衡Ribbon: ① 使用方法: 通过在RestTemplate 对象进行@LoadBalanced进行注解，RestTemplate封装了http请求，支持java原生的httpclient，OKHttp等,spring将会进行自动化配置，给
+                                进行了@LoadBalanced的RestTemplate添加相应的负载均衡拦截器来实现客户端的负载均衡
+
+                             ② 负载均衡策略:RoundRobinRule:  轮询从服务清单中挑选一个服务实例的功能
+                                RandomRule： 随机从服务清单中挑选一个服务实例的功能
+                                availabilityFilteringRule： 会先过滤掉由于多次访问故障而处于断路器跳闸状态的服务，还有并发的连接数超过阈值的服务，然后对剩余的服务列表进行轮询
+                                WeightedResponseTimeRule: 权重 根据平均响应时间计算所有服务的权重，响应时间越快服务权重越大被选中的概率越高。刚启动时，如果统计信息不足，则使用轮询策略，等信息足够，切换到 WeightedResponseTimeRule
+                                RetryRule: 重试 先按照轮询策略获取服务，如果获取失败则在指定时间内重试，获取可用服务
+                                BestAvailableRule: 选过滤掉多次访问故障而处于断路器跳闸状态的服务，然后选择一个并发量最小的服务
+                                ZoneAvoidanceRule: 符合判断server所在区域的性能和server的可用性选择服务
+
+spring实战学习总结VIII
+     1.使用SpringMVC创建REST API: ① 了解REST: 表述性（Representational）：REST资源实际上可以用各种形式来进行表述，包括XML、JSON（JavaScript Object Notation）甚至 HTML——最适合资源使用者的任意形式；
+                                              状态（State）：当使用REST的时候，我们更关注资源的状态而不是对资源采取的行为；
+                                              转移（Transfer）：REST涉及到转移资源数据，它以某种表述性形式从一个应用转移到另一个应用。
+                                 ② 协商资源表述: 当要将视图名解析为能够产生资源表述的视图时，我们就有另外一个维度需要考虑了。视图不仅要匹配视图名，而且所选择的视图要适合客户端。
+                                                 Spring通过ContentNegotiatingViewResolver来实现客户端和服务端内容协商，分为两个步骤：
+                                                 1.确定请求的媒体类型 : ContentNegotiatingViewResolver将会考虑到Accept头部信息并使用它所请求的媒体类型，但是它会首先查看URL的文件扩展名。
+                                                 如果URL在结尾处有文件扩展名的话，ContentNegotiatingViewResolver将会基于该扩展名确定所需的类型。如果扩展名是“.json”的 话，那么所需的内容类型必须是“application/json”。
+                                                 如果扩展名是“.xml”，那么客户端请求的就是“application/xml”。当然，“.html”扩展名表明客户端所需的资源表述为HTML（text/html）。
+                                                 如果不能获得客户端所需要的媒体类型则返回/也就是服务端返回什么客户端接收就行
+                                                 2.找到适合请求媒体类型的最佳视图： 一旦能够确定客户端想要什么样的媒体类型，接下来就是查找渲染这种内容的视图(jsp，bean，velocity等视图解析器)。
+                                 ③ 使用HTTP信息转换器: 消息转换（message conversion）提供了一种更为直接的方式，它能够将控制器产生的数据转换为服务于客户端的表述形式。
+                           当使用消息转换功能时，DispatcherServlet不再需要那么麻烦地将模型数据传送到视图中。实际上这里根本就没有模型也没有视图，只有控制器产 生的数据，以及消息转换器（message converter）转换数据之后所产生的资源表述。
+                           比如在控制器中使用@ResponseBody即可以跳过将返回的对象放在视图中渲染，直接返回数据给客户端
+
+
+
+spring实战学习笔记总结
+         1. Spring消息: ① 异步消息的简介: 异步消息也可用于应用程序之间的消息通信，与面向方法调用的RPC通信不同，客户端不必等待消息被处理，不存在客户端调用远程服务方法时必须等待远程方法结束后才能继续执行。
+                                          消息路由模式: 点对点消息模型：在点对点模型中，每一条消息都有一个发送者和一个接收者，可以有多个接收者不过只能其中一个接收到该消息
+                                                       发布订阅模式: 在发布—订阅消息模型中，消息会发送给一个主题。与队列类似，多个接收者都可以监听一个主题。但是，与队列不同的是，消息不再是只投 递给一个接收者，
+                                                       而是主题的所有订阅者都会接收到此消息的副本
+
+                       ② 使用JMS发送消息: Java消息服务（Java Message Service ，JMS）是一个Java标准，定义了使用消息代理的通用API。在JMS出现之前，每个消息代理都有私有 的API，这就使得不同代理之间的消息代码很难通用。
+                                          但是借助JMS，所有遵从规范的实现都使用通用的接口，这就类似于JDBC为数据库操作 提供了通用的接口一样。
+
+                       ③ 使用使用AMQP实现消息功能 : 与JMS消息规范不同，AMQP具有多项JMS所不具备的优势。使用JMS的话，只有两种消息模型可供选择：点对点和发布-订阅。这两种模型在AMQP当然都是可以实现的，
+                                                    但AMQP还能够让我们以其他的多种方式来发送消息，这是通过将消息的生产者与存放消息的 队列解耦实现的。
+                                                    与之不同的是，AMQP的生产者并不会直接将消息发布到队列中。AMQP在消息的生产者以及传递信息的队列之间引入了一种间接的机制： Exchange
+                                                    四种标准的AMQP Exchange如下所示：
+                                                    Direct：如果消息的routing key与binding的routing key直接匹配的话，消息将会路由到该队列上；
+                                                    Topic：如果消息的routing key与binding的routing key符合通配符匹配的话，消息将会路由到该队列上；
+                                                    Headers：如果消息参数表中的头信息和值都与bingding参数表中相匹配，消息将会路由到该队列上；
+                                                    Fanout：不管消息的routing key和参数表的头信息/值是什么，消息将会路由到所有队列上。
+
+spring实战笔记总结
+       1.WebSocket:  ① 为了解决一些实时通讯的场景，我们可以通过短轮询，长轮询，WebSocket相应的工具来实现，不过他们有各自的优缺点
+                        短轮询: 即定时重复发送Http请求，查询目标事件是否完成，优点：编写简单，缺点：浪费带宽和服务器资源不适用客户端多的情况
+                        长轮询: 在服务端hold住Http请求（死循环或者sleep等等方式），等到目标时间发生(保持这个请求等待数据到来或者恰当的超时)，返回Http响应。优点：在无消息的情况下不会频繁的请求，缺点：编写复杂
+                        WebSocket: 是一个真的全双工，第一次tcp链路建立之后，后续数据可以双方都进行发送，不需要发送请求头，并且这个连接会持续存在直到客户端或者服务器端的某一方主动关闭连接.缺点: 存在兼容性问题
+
+                       2.spring与WebSocket
+                       ③ 使用方法: 通过使用Java配置@EnableWebSocket，并实现WebSocketConfigurer接口，registerWebSocketHandlers()方法是注册消息处理器的关键。消息处理器的创建需要实现WebSocketHandler接口
+                                    也可以更简洁一点使用全注解的方式@ServerEndpoint和构造一个ServerEndpointExporter bean就行
+
+                       ④ 不支持WebSocket的场景: 有些低版本的浏览器并不支持WebSocket，为了兼容，WebSocket提供了兜底方案SocketJS.ockJS是WebSocket技术的一种模拟。
+                        在表面上，它尽可能对应WebSocket API，但是在底层它非常智能，如果WebSocket技术不可用的话，就会选择另外的通信方式。只需在Spring中配置一下就行
+
+
+
+
+
+spring实战笔记总结
+      1.使用Spring发送Email: ① 配置Spring发送邮件：创建邮件发送器JavaMailSenderImpl对象配置相应的邮件服务器主机名，之后调用这个对象相应api就行
+                            ② 构建内容丰富的Email信息: 如果发送的邮件包含附件需要创建MimeMessageHelper对象然后加载文件资源，通过JavaMailSenderImpl对象发送即可
+                            ③ 发送富文本内容的Email: 可以使用像Velocity和Thymeleaf这样的模板引擎生成富文本Email文本，避免了通过字符串拼接创建HTML
+
+
+docker学习笔记总结
+      1.什么是docker: ① docket是一种虚拟化技术，相比于虚拟机 docker更加轻便，启动快，占用资源少。Docker 将应用程序与该程序的依赖，打包在一个文件里面。
+                        运行这个文件，就会生成一个虚拟容器。程序在这个虚拟容器里运行，就好像在真实的物理机上运行一样。有了Docker，迁移项目的时候再也不用担心环境问题。
+
+      2.docker的用途: ① 提供一次性的环境。比如，本地测试他人的软件、持续集成的时候提供单元测试和构建的环境。
+                      ② 提供弹性的云服务。因为 Docker 容器可以随开随关，很适合动态扩容和缩容。
+                      ③ 组建微服务架构。通过多个容器，一台机器可以跑多个服务，因此在本机就可以模拟出微服务架构。
+
+      3.docker基本概念: 镜像（Image）：Docker 镜像（Image），就相当于是一个 root 文件系统。
+                       容器（Container）：镜像（Image）和容器（Container）的关系，就像是面向对象程序设计中的类和实例一样，镜像是静态的定义，容器是镜像运行时的实体。容器可以被创建、启动、停止、删除、暂停等。
+                       仓库（Repository）：仓库可看着一个代码控制中心，用来保存镜像。
+
+     4.docker相关命令: 1.service docker start: 启动docker服务
+                       2. docker version :查看docker版本
+                       3. docker image ls : 查看本机所有镜像
+                       4. docker image rm [imageName]: 删除镜像
+                       5. docker container run [imageId] 运行镜像文件构造容器
+                       6. docker container run -it ubuntu bash 启动后创建一个伪终端
+                       7. docker container kill [containID] 终止容器
+                       8. docker container ls 列出本机正在运行的容器
+                       9. docker container rm [containerID] 删除无用的容器
+                       10. docker container start前面的docker container run命令是新建容器，每运行一次，就会新建一个容器。同样的命令运行两次，就会生成两个一模一样的容器文件。
+                       11. docker container logs 命令用来查看 docker 容器的输出，即容器里面 Shell 的标准输出。
+                       12. docker container exec -it [containerID] /bin/bash 命令用于进入一个正在运行的 docker 容器。一旦进入了容器，就可以在容器的 Shell 执行命令了。
+                       13. docker container cp [containID]:[/path/to/file]  命令用于从正在运行的 Docker 容器里面，将文件拷贝到本机。下面是拷贝到当前目录的写法。
+                       14. docker image push [username]/[repository]:[tag] 发布 image 文件
+                       15 docker image pull library/** 将 image 文件从仓库抓取到本地。
+
+
+
+
+
+
+
+docker学习笔记总结II
+         1.制作自己的docker容器: ① 什么是 Dockerfile：Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一条条构建镜像所需的指令和说明。
+                                                     Dockerfile 由一行行命令语句组成，并且支持以 # 开头的注释行。 一般的，Dockerfile 分为四部分：基础镜像信息、维护者信息、镜像操作指令和容器启动时执行指令。
+                                ② Dockerfile文件指令集:
+                                   1.FROM: <image>/<image>:<tag>/<image>:<digest> 如果tag和digest不设置默认置为latest的镜像，功能为指定基础镜像，必须是第一条指令。
+                                           如果不以任何镜像为基础，那么写法为：FROM scratch。
+                                   2.RUN : 用于执行后面跟着的命令行命令，RUN <command> /RUN ["executable", "param1", "param2"] 第一种直接跟shell命令
+                                           注意:多行命令不要写多个RUN，原因是Dockerfile中每一个指令都会建立一层.多少个RUN就构建了多少层镜像，会造成镜像的臃肿、多层，不仅仅增加了构件部署的时间，还容易出错。 RUN书写时的换行符是\
+                                   3.CMD : 容器启动时要运行的命令，三种语法 1. CMD ["executable","param1","param2"] 可执行文件加上参数写法
+                                                                          2. CMD ["param1","param2"]              可执行文件加上参数写法
+                                                                          3. CMD command param1 param2             shell执行方式的写法
+                                                                          RUN 和 CMD区别
+                                                                          RUN是构件容器时就运行的命令以及提交运行结果。
+                                                                          CMD是容器创建完毕启动时候运行的命令，在构件时并不运行，构件时紧紧指定了这个命令到底是个什么样子
+                                  4.LABEL: 为镜像指定标签
+                                  5 MAINTAINER: MAINTAINER <name>指定作者
+                                  6.EXPOSE: 功能为暴漏容器运行时的监听端口给外部,如果想让主机的端口和容器端口映射加上参数-P
+                                  7.EVA: 设置环境变量
+                                  8.ADD: ADD <src>... <dest>  一个复制命令，把文件复制到镜像中。
+                                  9. COPY:  COPY <src>... <dest> 和ADD的区别COPY的<src>（为Dockerfile所在目录的相对路径）只能是本地文件，其他用法一样
+                                  10.VOLUME: VOLUME ["/data"] 可实现挂载功能，可以将内地文件夹或者其他容器种得文件夹挂在到这个容器中
+                                  11.WORKDIR: WORKDIR /path/to/workdir 设置工作目录，对RUN,CMD,ENTRYPOINT,COPY,ADD生效。如果不存在则会创建，也可以设置多次。
+                                  12.ARG: ARG <name>[=<default value>] 设置变量命令，ARG命令定义了一个变量，在docker build创建镜像的时候，使用 --build-arg <varname>=<value>来指定参数
+                                                                       如果用户在build镜像时指定了一个参数没有定义在Dockerfile种，那么将有一个Warning
+                                  13. HEALTHCHECK: 容器健康状况检查命令
+                                  14.编写完成 Dockerfile 之后，可以通过 docker build 命令来创建镜像。基本的格式为 docker build [选项] 路径
+
+netty学习笔记I
+       1.Java网络编程: ① BIO:    早期 Java APi提供的阻塞式网络接口，比如ServerSocket上的accpet()方法的调用将被阻塞，直到一个连接建立,连接建立后服务端Read方法
+                                 也将被阻塞。为了同时能处理多个连接，管理多个并发端，只能为每个Socket创建新的Thread。缺点:在任何 时候都可能有大量的线程处于休眠状态，只是等待输入或者输出数据就绪，这可能算是一种资源浪费。
+                                 第二，需要为每个线程的调用栈都分配内存，其默认值大小区间为 64 KB 到 1 MB，具体取决于操作系统并且支持的线程越多上下文的开销就越多，适用于支撑中小数量的客户端
+                      ② NIO:    非阻塞IO,可以使用 setsockopt()方法配置套接字，以便读/写调用在没有数据的时候立即返回，也就是说，如果是一个阻塞调用应该已经被阻塞了
+                                 可以使用操作系统的事件通知 API注册一组非阻塞套接字，以确定它们中是否有任何的套接字已经有数据可供读写。
+                     ③Selector: NIO只是提供非阻塞式的接口，而Selector能监听他们的套接字(通过操作系统支持)，如果有io时间发生我就告诉程序来处理，使用较少的线程便可以处理许多连接，因此也减少了内存管理和上下文切换所带来开销；
+                                 当没有 I/O 操作需要处理的时候，线程也可以被用于其他任务。
+
+       2.netty简介: Netty是一个基于Java NIO的client-server网络服务框架，人们可以利用netty快速地开发网络应用。同时netty相对于其他网络框架更加简单并且扩展性更强，
+                    这主要得益于其提供的简单易用的api将业务逻辑和网络处理代码解耦开来。能够使你更加专注于业务的实现而不需要太多关心网络底层实现。
+
+
+       3.netty的核心组件: 1. Channel: Channel是Java NIO的一个基本构造，可以把它看作是传入（入站）或者传出（出站）数据的载体。因此，它可以被打开或者被关闭，连接或者断开连接。
+                         2. 回调:    回调就是一个方法的引用被提供给另一个方法，另一个方法在某个情况下通过这个引用来执行这个方法。Netty在内部使用了回调来处理事件；
+                                     比如一个新的连接已经建立了，可以回调相应的方法，
+                         3. Future: Java中包含Future异步接口，它可以解决一些同步获取值的一些问题，你可用将他封装成Future对象，当你想获取值的使用调用他的Get方法就行，
+                                    不过如果此时还是没有值，也就只能阻塞等了，这个的用处让你可以把关注点放在业务逻辑上，而不用考虑同步阻塞式的获取值的问题
+                                    Netty封装了一下Future接口netty的ChannelFuture提供了几种额外的方法，这些方法使得我们能够注册一个或者多个ChannelFutureListener实例。监听器的回调方法operationComplete()，
+                                    将会在对应的操作完成时被调用 然后监听器可以判断该操作是成功地完成了还是出错了。如果是后者，我们可以检索产生的Throwable。
+                                    简而言之，由ChannelFutureListener(回调的精细版本)提供的通知机制消除了手动检查对应的操作是否完成的必要。 通过回调和Future互补，可以看出netty是基于异步和事件回调驱动的
+                       4.事件和ChannelHandel: Netty使用不同的事件来通知我们状态的改变或者是操作的状态(发布订阅模式)。通过触发的事件，回调相应的动作。
+                                   这些动作可能是:记录日志,数据转换,流控制
+                                     促发的事件: 连接已被激活或者连接失活；数据读取；用户事件；错误事件。打开或者关闭到远程节点的连接；将数据写到或者冲刷到套接字。
+
+
+netty学习笔记II
+           1.netty的组件和设计: ①  Channel接口：包含基本的 I/O 操作bind()、connect()、read()和write()依赖于底层网络传输所提供的原语。在基于 Java 的网络编程中，
+                                               其基本的构造是class Socket。通过channel的封装简化了直接使用Socket类的复杂性
+
+                               ② EventLoop接口: 该接口用于处理连接的生命周期发生的事件，当发生相应的io事件时进行对应的处理。应该是通过该接口封装了Selector
+
+                               ③ ChannelFuture接口: Netty 中所有的 I/O 操作都是异步的。因为一个操作可能不会立即返回，所以我们需要一种用于在之后的某个时间点确定其结果的方法。
+                                                   为此，Netty提供了ChannelFuture接口，其addListener()方法注册了一个ChannelFutureListener，以便在某个操作完成时得到通知。
+
+                               ④ ChannelHandler接口: 当发生相应的io事件的时候，该接口的方法会被触发。这里由用户编写相应的处理逻辑，这个需要我们进行相应的逻辑开发
+
+                               ⑤ ChannelPipeline接口:ChannelPipeline提供了ChannelHandler链的容器，并定义了用于在该链上传播入站和出站事件流的 API。当 Channel被创建时，它会被自动地分配到它专属的ChannelPipeline。
+                                                      该组件主要作用是一个ChannelPipeline可以绑定多个ChannelHandler,通过链表来联系相同类型的handle，当执行一个handle完可以执行链中下一个handle不怎么懂这个组件
+
+                              ⑥ 编码器和解码器: 当你通过 Netty发送或者接收一个消息的时候，就将会发生一次数据转换。入站消息会被解 码；也就是说，从字节转换为另一种格式，通常是一个 Java 对象。如果是出站消息，
+                                                则会发生 相反方向的转换：它将从它的当前格式被编码为字节。这两种方向的转换的原因很简单：网络数据总是一系列的字节
+
+                              ⑦ 引导: Netty 的引导类为应用程序的网络层配置提供了容器，这涉及将一个进程绑定到某个指定的端口，或者将一个进程连接到另一个运行在某个指定主机的指定端口上的进程
+                                      包含两种类型: 一种用于客户端的Bootstrap，另一种则为服务端: ServerBootstrap
+
+
+
+
+1.netty学习笔记III
+       1.Netty数据容器ByteBuf: ① 如何工作: netty的ByteBuf类提供了两个不同的索引一个用于读取一个用于写入。当你从 ByteBuf 读取时， 它的 readerIndex 将会被递增已经被读取的字节数。
+                                                  同样地，当你写入 ByteBuf 时，它的 writerIndex 也会被递增。与Java NIO的ByteBuf不同不需要在进行读写切换(flip())改变指针的位置
+                              ② ByteBuf的构建模式：1.堆缓冲区：最常用的 ByteBuf 模式是将数据存储在 JVM 的堆空间中。这种模式被称为支撑数组 （backing array），它能在没有使用池化的情况下提供快速的分配和释放
+                                                   2.直接缓冲区: 直接缓冲区是另外一种ByteBuf模式。我们期望用于对象创建的内存分配永远都来自于堆中JDK1.4中引入的ByteBuffer类允许JVM实现通过本地调用来分配内存。
+                                                                 可实现zero copy但分配和回收效率低
+                                                   3.复合缓冲区:混合1.2提供一个聚合视图。在这里你可以根据需要添加或者删除ByteBuf实例.
+                                                                                                             可丢弃字节(调用discardReadBytes())           可读字节(read操作会导致readIndex+1)             可写字节
+                             ③ 字节级操作:Netty ByteBuf包含读写两个索引，这两个索引将ByteBuf划分成3个区域: 0<----------------------------------readerIndex<-----------------------------------writeIndex<-------------capacity
+
+                             ④ 引用计数: 从netty4起，其内存回收机制采用引用计数的方式来进行因此，一旦对象不再被引用后，Netty 会将它（或它共享的资源）归还到对象池（或对象分配器）。
+                                          在垃圾回收和引用队列不能保证这么有效、实时的不可达性检测的情况下，引用计数以牺牲轻微的便利性为代价，提供了另一种可选的解决方案。
+
+
+1.netty学习笔记VI
+1.ChannelHandle和ChannelPipeline: 1 ChannelHandle的生命周期: handlerAdded 当把ChannelHandler添加到ChannelPipeline中时被调用
+                                                                   handlerRemoved 当从ChannelPipeline中移除ChannelHandler时被调用
+                                                                   exceptionCaught 当处理过程中在ChannelPipeline中有错误产生时被调用
+                                  1.1 ChannelHandle两个重要的子接口: ChannelInboundHandler——处理入站数据以及各种状态变化； ChannelOutboundHandler——处理出站数据并且允许拦截所有的操作。
+                                                                         1.ChannelInboundHandler 接口: 包含方法:  channelRegistered 当Channel已经注册到它的EventLoop并且能够处理 I/O 时被调用
+                                                                                                                     channelActive 当Channel处于活动状态时被调用；Channel已经连接/绑定并且已经就绪
+                                                                                                                     channelRead 当从Channel读取数据时被调用
+                                                                         2.ChannelOutboundHandler接口: 包含方法: bind(ChannelHandlerContext, SocketAddress,ChannelPromise)当请求将Channel绑定到本地地址时被调用
+                                                                                                            read(ChannelHandlerContext) 当请求从Channel读取更多的数据时被调用
+                                                                                                            write(ChannelHandlerContext,Object, ChannelPromise)当请求通过Channel将数据写到远程节点时调用
+                                1.2 ChannelHandler适配器: 你可以使用 ChannelInboundHandlerAdapter 和ChannelOutboundHandlerAdapter 类作为自己的ChannelHandler的起始点。
+                                                         这两个适配器分别提供了ChannelInboundHandler 和ChannelOutboundHandler的基本实现。在ChannelInboundHandlerAdapter 和 ChannelOutboundHandlerAdapter 中所提供的方法体
+                                                         调用了其相关联的ChannelHandlerContext上的等效方法，从而将事件转发到了ChannelPipeline中的下一个ChannelHandler
+                                2 ChannelPipeline接口: 2.1  ChannelPipeline通过链表绑定了一系列相同事件的ChannelHandle
+                                                       2.2 包含方法: addLast("name", ChannelHandler);将channelHandle添加到ChannelPipeline末尾
+                                                                     remove 将一个ChannelHandler从ChannelPipeline中移除
+                                                                     replace 将 ChannelPipeline 中的一个 ChannelHandler 替换为另一个 Channel- Handler
+                                                                     get 通过类型或者名称返回ChannelHandler
+                                                                     names 返回ChannelPipeline中所有ChannelHandler的名称
+                                                       2.3 促发事件:  2.3.1 ChannelInboundHandler(入站)
+                                                                           fireChannelRead调用ChannelPipeline中下一个 ChannelInboundHandler的channelRead(ChannelHandlerContext, Object msg)方法
+                                                                           fireChannelRegistered 调用 ChannelPipeline 中下一个 ChannelInboundHandler的channelRegistered(ChannelHandlerContext)方法
+                                                                           fireChannelReadComplete 调用 ChannelPipeline 中下一个 ChannelInboundHandler的channelReadComplete(ChannelHandlerContext)方法
+                                                                     2.3.2 ChannelOutboundHandler(出站)
+                                                                            write 将消息写入 Channel。这将调用 ChannelPipeline 中的下一个 Channel- OutboundHandler的write(ChannelHandlerContext, Object msg, Channel- Promise)
+                                                                                  方法。注意：这并不会将消息写入底层的Socket，而只会将它放入队列中。要将它写入Socket，需要调用flush()或者writeAndFlush()方法
+                                                                            read 请求从 Channel 中读取更多的数据。这将调用 ChannelPipeline 中的下一个 ChannelOutboundHandler的read(ChannelHandlerContext)方法
+                                                                            flush 冲刷Channel所有挂起的写入。这将调用ChannelPipeline中的下一个ChannelOutboundHandler的flush(ChannelHandlerContext)方法
+
+
+
+
+1.单元测试学习笔记I
+          ① 什么是单元测试: 单元测试是开发者编写的一小段代码，用于检验被测代码的一个很小的，很明确的功能是否正确。执行单元测试，是否为了验证某段代码的行为确实和开发者所期望的一致，单元测试是必要的，他能降低你代码的bug提高你的开发效率
+
+          ② 使用Junit编写测试: 2.1 使用断言: assertEquals(String message except,actual)这是使用最多的断言形式，相等性测试，except是你的期望值，actual是被测试代码的实际值，message是个可选值，将会在发生错误的时候报告这个消息
+                                             assertNull(String message ,Object object)验证给定对象是否为空
+                                             assertSame(String message ,except,actual)验证except和actual是否为同一对象
+                                             assertTrue(String message,Condition condition) 验证给定的二元条件是否为真
+                                             assertFalse(String message,Condition condition)验证给定的二元条件是否为假
+                                             fail(String message)该断言将会使测试立即失败，常用来来标记某个不应该到达的分支
+                              2.2 自定义断言: 通常而言，Junit所提供的标准断言对大多数测试已经足够了。然而对应一些特殊场景，你也可以自定义相应的断言通过继承TestCase
+
+         ③ 测试那些内容: Right--结果是否正确 B--是否所有的边界条件都正确 I--能查一下反向关联吗 C-能用其他手段交叉检查一下结果吗 E--你是否可以强制错误条件的发生 p--是否满足性能需求
+
+
+2.单元测试学习笔记II
+         ① 使用Mock对象: 单元测试的目标是只验证一个方法，但倘若遇到这样的情况：某个方法依赖于第三方,网络,数据库等一些难以操控的东西，这时候就需要mock技术帮我们创建对象的替代品。
+         ② 使用Mockito: 2.1 Mockito 是一个流行 mock 框架，可以和JUnit结合起来使用。Mockito允许你创建和配置 mock对象。使用Mockito可以明显的简化对外部依赖的测试类的开发。
+                        2.2 使用详解: 1.导入依赖(springboot内嵌)
+                                     2.mock对象: Object object=mock(Object.class);//可以mock具体的类型，不仅是接口
+                                     3.构建方法的返回值: when(object.get(param)).thenReturn("result")...调用mock 出来的object对象get方法返回字符串result也可以连续调用.thenReturn("result").thenResult("2")第二次调用返回字符串2
+                                                      也可以构建抛出异常的方法即 when(object.get()).thenThrow(new RuntimeException)
+                                     4.验证函数的确切，最少,从未调用次数: verify(object, times(1)).get();验证object对象get方法是否调用了一次
+                                                                      verify(object, never()).get();验证object对象get方法是否从未调用
+                                                                      verify(object, atLeast(1)).get();验证object对象get方法是否至少调用了一次
+                                                                      verify(object, atMost(1)).get();验证object对象get方法是否最多调用了一次
+                                     5.验证方法的执行顺序: InOrder inOrder = inOrder(object);
+                                     6.使用spy()部分模拟真实对象: List spy=spy(new LinkedList())  when(spy.size()).thenReturn(100);对这个方法进行定制，其他方法都将被委派给真实的list对象进行调用
+                                     7.参数捕获:Object object = mock(Object.class);     ArgumentCaptor<Object> argument = ArgumentCaptor.forClass(Object.class); argument.capture()//可以捕获object对象方法中的参数
+                       2.3 使用注解: @InjectMocks：创建一个实例，简单的说是这个Mock可以调用真实代码的方法，其余用@Mock（或@Spy）注解创建的mock将被注入到用该实例中。
+                                    @Mock：对函数的调用均执行mock（即虚假函数），不执行真正部分。
+                                    @Spy：对函数的调用均执行真正部分。
+                       2.4 缺点:    现如今比较流行的Mock工具如jMock,EasyMock,Mockito等都有一个共同的缺点：不能mock静态、final、私有方法等。可以使用Jmockit
+
+1.netty学习笔记V
+            EventLoop和线程池模型: ① Netty中的线程池 EventLoopGroup: 使用netty的时候首先需要的就是创建 EventLoopGroup group = new NioEventLoopGroup();分为Boss和Worker作为netty的线程池
+                                                                                                  private final EventExecutor[] children;
+                                                                                                    线程数组存放NioEventLoop
+                                     1.1 继承关系: NioEventLoopGroup---->MultithreadEventLoopGroup--->MultithreadEventExecutorGroup---->AbstractEventExecutorGroup--->EventExecutorGroup
+
+                                     1.2 构造函数: public NioEventLoopGroup(int nThreads, Executor executor, EventExecutorChooserFactory chooserFactory,
+                                                                    final SelectorProvider selectorProvider,
+                                                                    final SelectStrategyFactory selectStrategyFactory,
+                                                                    final RejectedExecutionHandler rejectedExecutionHandler)
+                                                  Threads：线程池中的线程数，也就是 NioEventLoop 的实例数量。
+                                                  executor：传入一个线程池，但是不是给EventLoopGroup用的而是给 NioEventLoop 用的。
+                                                  chooserFactory：当我们提交一个任务到线程池的时候，线程池需要选择（choose）其中的一个线程来执行这个任务，这个就是用来实现选择策略的。
+                                                  selectorProvider：JDK 的 Selector，可以看到每个线程池都持有一个 selectorProvider 实例。
+                                                  selectStrategyFactory：这个涉及到的是线程池中线程的工作流程；
+                                                  rejectedExecutionHandler：用于处理线程池中没有可用的线程来执行任务的情况。默认抛出异常
+                                    1.3 EventLoop: 1.每个NioEventLoop实例内部都会有一个自己的Thread实例,也就是EventLoop封装了Thread充当线程的角色被包含在线程组EventLoopGroup中
+                                                   并且通过在同一个线程中处理某个给定的EventLoop中所产生的所有事件，这提供了一个更加简单的执行体系架构，并且消除了在多个 ChannelHandler中进行同步的需要。
+                                                   2.每个NioEventLoop都有自己的Selector,并且通过parent方法获得NioEventLoopGroup
+
+
+       登入
+用户-------------------->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.springboot对跨域处理笔记:
+                                1.什么是跨域: 同源策略是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。 如果一个请求地址里面的协议、域名和端口号都相同，就属于同源。
+                                             任何其一不相同即跨域，在同源策略的限制下，非同源的网站之间不能发送 AJAX 请求。
+                                2.CORS技术: 为了解决浏览器跨域问题，W3C 提出了跨源资源共享方案，即 CORS(Cross-Origin Resource Sharing)。 CORS 可以在不破坏即有规则的情况下，通过后端服务器实现 CORS 接口，就可以实现跨域通信。
+                                            CORS 将请求分为两类：简单请求和非简单请求，分别对跨域通信提供了支持。
+                                            ① 简单请求: 发送HTTP请求时在头信息中不能包含任何自定义字段，且 HTTP 头信息不超过以下几个字段不满足即非简单请求：
+                                               Accept：客户端希望接收的数据类型
+                                               Accept-Language:  浏览器申明自己接收的语言。
+                                               Content-Language：用来说明访问者希望采用的语言或语言组合，这样的话用户就可以根据自己偏好的语言来定制不同的内容。
+                                               Last-Event-ID:    浏览器用lastEventId读取id，一旦连接断开，浏览器会从新发送http请求，带有特殊请求头Last-Event-Id，代表断开时的id，用于建立重新连接，属于一种重连的同步机制。
+                                               Content-Type:     标题告诉客户实际返回的内容的内容类型（仅限于 [application/x-www-form-urlencoded 、multipart/form-data、text/plain ] 类型）
+                                            ② 非简单请求: 对于非简单请求的跨源请求，浏览器会在真实请求发出前，增加一次OPTION请求，称为预检请求。预检请求将真实请求的信息，包括请求方法、自定义头字段、源信息添加到 HTTP 头信息字段中，
+                                                询问服务器是否允许这样的操作。 验证通过后会在返回的http头信息中添加如下字段:
+                                                Access-Control-Allow-Methods: 真实请求允许的方法
+                                                Access-Control-Allow-Headers: 服务器允许使用的字段
+                                                Access-Control-Allow-Credentials: 是否允许用户发送、处理 cookie.另一方面，开发者必须在AJAX请求中打开withCredentials属性。
+                                                Access-Control-Max-Age: 预检请求的有效期，单位为秒。有效期内，不会重复发送预检请求
+                     3.Springboot对CROS的实现: ① 使用注解: @CrossOrigin注解实现（局部可以标注在单独controller层方法上或者类上）例如@CrossOrigin(origins = {"http://localhost:8088", "null"})
+                                               ② 使用配置类(全局): 需要添加一个配置类 ：继承WebMvcConfigurerAdapter重写addCorsMappings
+                                               ③ 使用过滤器实现(全局):全局过滤器，作用全局，需要添加一个过滤器 ：构造一个FilterRegistrationBean Bean
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Springboot学习笔记总结I
+              1.POM文件: maven用户继承了spring-boot-starter-parent,该父项目默认提供了如下功能:Java 1.8 作为默认编译器级别。
+                       1.1: 源代码使用 UTF-8 编码。
+                       1.2: 依赖管理部分继承自 spring-boot-dependencies 的 POM，允许您省略常见依赖的 <version> 标签。
+                       1.3: 合理的资源过滤。
+                       1.4: 合适的插件配置（exec plugin、Git commit ID、shade）。
+                       1.5: 针对 application.properties 和 application.yml 资源的合理过滤，包括特定 profile 的文件（例如 application-foo.properties 和 application-foo.yml）
+             2.使用default: 当一个类没有 package 声明时，它就被认为是在 default 包中。通常不鼓励使用 default 包，应该避免使用。
+                            如果使用 @ComponentScan、@EntityScan 或者 @SpringBootApplication ，这样可能会导致特殊问题发生，因为每一个 jar中的每一个类将会被读取到。
+             3.使用 @SpringBootApplication 注解: 很多 Spring Boot 开发者总是使用 @Configuration(标识为配置类)、@EnableAutoConfiguration(开启自动配置载入classpath路径下的META-INF spring.factories配置类)
+              和 @ComponentScan(默认扫当前类路径下) 注解标记在主类上。由于这些注解经常一起使用（特别是如果您遵循上述的最佳实践）。Spring Boot 提供了一个更方便的 @SpringBootApplication 注解可用来替代这个组合。
+
+
+
+
+Springboot学习笔记总结II
+             ① 外部化配置: 您可以使用 properties 文件、YAML 文件、环境变量或者命令行参数来外部化配置。
+                           可以使用 @Value 注解将属性值直接注入到 bean 中，可通过 Spring 的 Environment 访问，或者通过 @ConfigurationProperties 绑定到结构化对象。
+             ② 特定Profile的属性文件: 除application.properties文件外，还可以使用以下命名约定定义特定 profile 的属性文件：application-{profile}.properties。
+                                     特定profile的属性文件从与标准application.properties相同的位置加载，特定profile的属性文件无论是否在打包的jar内部，都始终覆盖非特定文件。
+             ③ 类型安全的配置属性： SpringBoot提供了@Value("${property}") 注解来注入配置属性。但是如果您使用了多个属性或者您的数据本质上是分层结构。Spring Boot 提供了另一种使用属性的方法
+                                    @ConfigurationProperties()您还需要列出要在 @EnableConfigurationProperties 注解中注册的属性类
+             ④ Profile属性文件的激活和包含: Spring Profile 提供了一种应用程序配置部分隔离并使其仅在特定环境中可用的方法。可以使用 @Profile 来注解任何 @Component 或 @Configuration 以指定何时加载它
+                                            您可以使用 spring.profiles.active Environment 属性指定哪些配置文件处于激活状态。spring.profiles.include 属性可无条件地添加激活配置文件
+
+git学习笔记总结I:
+                1. git init：初始化git仓库
+                2. git remote add origin: 关联远程仓库
+                3. git clone : 克隆远程仓库
+                4 .git add : 使用它会把工作时的所有变化提交到暂存区，包括文件内容修改(modified)以及新文件(new)，但不包括被删除的文件。
+                5. git commit : 命令则将缓存区内容添加到仓库中。
+                5. git push : 在使用git commit命令将修改从暂存区提交到本地版本库后，只剩下最后一步将本地版本库的分支推送到远程服务器上对应的分支了
+                6. git log : 查看提交历史
+                7. git status : 命令可以查看当前工作区和暂存区文件的状态
+                8. git branch : 创建分支
+                9. git checkout: 切换分支
+                10.git branch ： 查看分支
+
+
+
+
+
+
+
+git学习笔记总结II:
+               1.git reset: 版本回退，包含三种模式 soft, mixed, hard,keep。
+                --hard: 你的HEAD和当前branch切到上一条commit 的同时，你工作区里的新改动和已经add到stage区的新改动也一起全都消失了。
+                --soft: 如果你不想回退的时候工作区和stage的内容丢失，可以使用soft并把重置 HEAD 所带来的新的差异放进暂存区(也就是你原来分支和回退分支之间的内容差异会被放进stage)适用于
+                当我们想合并「当前节点」与「reset目标节点」之间不具太大意义的 commit 记录(可能是阶段性地频繁提交)時，可以考虑使用 Soft Reset 来让 commit 演进线
+                --mixed：不加参数时的默认行为，工作目录的修改、暂存区的内容以及由 reset 所导致的新的文件差异，都会被放进工作目录。简而言之,就是「把所有差异都混合（mixed）放在工作目录中」。
+                --keep:工作区的修改将被保存。
+              2. git diff: filename:比较工作区和暂存区, HEAD -- filename:比较工作区和版本库的最新版本
+              3. git revert: git revert命令的净效果类似于reset，但其方法不同。通常，reset的做法是移动分支指针到commit链其他位置，进而实现撤销更改。revert命令会在链的末尾添加新的提交以“取消”更改。
+              4. get merge: 合并分支
+              5. git stash: 暂时存储工作区的修改
+              6  git rebase: git rebase -i 合并commit提交. 合并分支与git merge作用相似,但不会产生合并的分支带来的commit,自己分支commit记录干净一条线
+              7. git pull:取回远程主机某个分支的更新，再与本地的指定分支合并
+              8. git fetch: 相当于是从远程获取最新版本到本地，不会自动合并。
+
+redis学习笔记总结:
+         1. 数据结构与对象： ①.字符串对象:字符串对象的编码可以是int raw或者embstr.raw编码采用SDS动态字符串作为底层数据结构
+                            ②. 列表对象: 列表对象的编码可以说ziplist(压缩列表)或者linkedlist(链表)
+                            ③  哈希对象: 哈希对象的编码可以是ziplist或者hashtable
+                            ④  集合对象：集合对象的编码可以是intset(数组)或者hashtable(字典)
+                            ⑤  有序集合: 有序集合的编码可以是ziplist或者skiplist(跳表)
+
+        2. 过期键的删除策略: ① 定时删除: 在设置键的过期时间的同时，会创建一个定时器,让定时器在键的过期时间来临时执行对键的删除操作。优点能及时删除解放内存,缺点增加cpu压力
+                            ② 惰性删除: 放任键过期不管，但是每次从键空间中获取键时，都会检查取得的键是否过期,如果过期的话就执行删除操作。优点能对cpu友好，缺点不能及时删除占用内存
+                            ③ 定期删除：每隔一段时间，程序就对数据库进行一次检查，删除里面的过期键。
+
+        3. 持久化机制:     ① RDB持久化: RDB是Redis默认的持久化方案。在指定的时间间隔内，执行指定次数的写操作，则会将内存中的数据写入到磁盘中。即在指定目录下生成一个dump.rdb文件。Redis 重启会通过加载dump.rdb文件恢复数据
+                                   缺点：数据的完整性和一致性不高，因为RDB可能在最后一次备份时宕机了。
+                           ② AOF持久化:Redis默认不开启。它的出现是为了弥补RDB的不足（数据的不一致性）所以它采用日志的形式来记录每个写操作，并追加到文件中。Redis 重启的会根据日志文件的内容将写指令从前到后执行一次以完成数据的恢复工作。
+                                   缺点：因为AOF记录的内容多，文件会越来越大，数据恢复也会越来越慢。
+
+       4.主从复制          ① 复制的实现: 1.从服务器设置主服务器地址 2.建立套接字连接。 3.发送ping命令检查主服务器状态 4. 进行身份验证; 5 发送端口信息
+                                         6. 同步从服务器向主服务器发送同步命令主服务器将持久化文件传输给从服务器。 7. 命令传播: 完成命令传播之后主服务器进入命令传播阶段,主服务器将自己执行的写命令发送给服务器
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Maven学习笔记总结I
+  1.Maven 生命周期:① clean生命周期：移除所有上一次构建生成的文件
+                  ② Build生命周期:主要阶段包括: validate（校验）校验项目是否正确并且所有必要的信息可以完成项目的构建过程。
+                                                compile（编译）	编译项目的源代码。
+                                                test（测试）	使用合适的单元测试框架运行测试（Juint是其中之一）。
+                                                package（打包）	将编译后的代码打包成可分发格式的文件，比如JAR、WAR或者EAR文件。
+                                                install（安装）	安装项目包到本地仓库，这样项目包可以用作其他本地项目的依赖。
+                                                deploy（部署）	将最终的项目包复制到远程仓库中与其他开发者和项目共享。
+  2.Maven 仓库: ① 本地仓库: 运行 Maven 的时候，Maven 所需要的任何构件都是直接从本地仓库获取的。如果本地仓库没有，它会首先尝试从远程仓库下载构件至本地仓库，然后再使用本地仓库的构件
+                ② 中央仓库: Maven 中央仓库是由 Maven 社区提供的仓库，其中包含了大量常用的库。
+                ③ 远程仓库: 如果 Maven 在中央仓库中也找不到依赖的文件，它会停止构建过程并输出错误信息到控制台。为避免这种情况，Maven 提供了远程仓库的概念。
+
+  3.Maven依赖搜索顺序： 当我们执行 Maven 构建命令时，Maven 开始按照以下顺序查找依赖的库：
+                       1 － 在本地仓库中搜索，如果找不到，执行步骤 2，如果找到了则执行其他操作。
+                       2 － 在中央仓库中搜索，如果找不到，并且有一个或多个远程仓库已经设置，则执行步骤 4，如果找到了则下载到本地仓库中以备将来引用。
+                       3 － 如果远程仓库没有被设置，Maven 将简单的停滞处理并抛出错误（无法找到依赖的文件）。
+                       4 － 在一个或多个远程仓库中搜索依赖的文件，如果找到则下载到本地仓库以备将来引用，否则 Maven 将停止处理并抛出错误（无法找到依赖的文件）。
+
+
+netty
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    spring实战学习总结III
+
+    2 高级装配:  ① 环境与profile: 一: 开发过程中可能需要根据不同的环境装配Bean。@Profile可以根据你激活的profile来决定是否装配.
+                                  二: 条件化Bean的装配， 通过@Conditonal注解你可以根据相应的条件来决定是否装配
+                                  三: 处理自动装配的歧义性, 如果有多个bean匹配对应的结果的时候可以通过@Primary和@Qualifier来解决
+
+                ② bean的作用域： 单例（Singleton）：在整个应用中，只创建bean的一个实例。Spring默认行为
+                                 原型（Prototype）：每次注入或者通过Spring应用上下文获取的时候，都会创建一个新的bean实例。
+                                 会话（Session）：在Web应用中，为每个会话创建一个bean实例。
+                                 请求（Request）：在Web应用中，为每个请求创建一个bean实例。
+
+               ③ 运行时值的注入: spring提供了在运行时注入一些值的功能可以通过属性占位符和SPEL表达式
+
+
+  Java编程思想学习总结:  ① 泛型: PECS是从集合的角度来看的。如果你只想从集合中get提取元素，则使用<? extends T> 表示继承于T的元素。擦除的边界为T 但是不能add存放。因为泛型就是给我们提供便利和
+                         安全的类型检查，如果语法上同意add，那么你获取的时候你能准确的进行类型转换吗？ 您无法在运行时知道该集合包含哪种特定的子类型T。因此<? extends T>禁止了添加操作。
+                         <? super T>表示某个元素的父类则只支持add操作 因为你只能添加T类型的。不管你的实参是参数化类型是什么。但是就导致了你无法get.因为编译器根本不知道get出来的实际化类型是什么。只知道是T的子类。
+                         无法帮你进行强制类型转换。因此就禁止了这个操作
+
+
+
+
+
+
+
+
+
+
+spring实战学习总结II
+     在学习装配Bean的章节当中，Spring给我们提供了三种装配Bean的方式式：自动化配置、基于Java的显式配置以及基于XML的显式配置。
+     当然不管采用那种方式最终都会被Spring容器管理，当然作者也建议我们使用基于Java的显示配置，毕竟在开发当中这是常用的
+
+spring实战学习总结III
+
+    2 高级装配:  ① 环境与profile: 一: 开发过程中可能需要根据不同的环境装配Bean。@Profile可以根据你激活的profile来决定是否装配.
+                                  二: 条件化Bean的装配， 通过@Conditonal注解你可以根据相应的条件来决定是否装配
+                                  三: 处理自动装配的歧义性, 如果有多个bean匹配对应的结果的时候可以通过@Primary和@Qualifier来解决
+
+                ② bean的作用域： 单例（Singleton）：在整个应用中，只创建bean的一个实例。Spring默认行为
+                                 原型（Prototype）：每次注入或者通过Spring应用上下文获取的时候，都会创建一个新的bean实例。
+                                 会话（Session）：在Web应用中，为每个会话创建一个bean实例。
+                                 请求（Request）：在Web应用中，为每个请求创建一个bean实例。
+
+               ③ 运行时值的注入: spring提供了在运行时注入一些值的功能可以通过属性占位符和SPEL表达式
+
+
+spring实战学习感悟
+      在学习spring bean的生命周期一节中，让我再次体会了Spring是如何一步步构建Bean容器的。也让我体会到了一个Bean对象
+      是如何在Spring从创建到销毁的。更重要的是通过了解Bean的生命周期能观察到相应的扩展点，以后可能会根据这些扩展点可以符合某些特定的业务逻辑

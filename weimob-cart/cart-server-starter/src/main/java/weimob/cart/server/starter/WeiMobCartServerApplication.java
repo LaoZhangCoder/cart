@@ -1,6 +1,5 @@
 package weimob.cart.server.starter;
 
-import com.alibaba.dubbo.config.spring.context.annotation.DubboComponentScan;
 import com.alibaba.dubbo.config.spring.context.annotation.EnableDubbo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;

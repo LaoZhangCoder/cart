@@ -47,13 +47,13 @@
               <ul>
                 <li>商品信息</li>
                 <li>商品金额</li>
-                <li>商品数量</li>
+                <li>购买数量</li>
                 <li>总金额</li>
                 <li>编辑</li>
               </ul>
             </div>
             <ul class="cart-item-list">
-              <li v-for="item in cartList" :key="item.productId">
+              <li v-for="item in cartList" :key="item.goodsId">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
                     <a href="javascipt:;" class="checkbox-btn item-check-btn"
@@ -64,26 +64,28 @@
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img src="//img14.360buyimg.com/n7/jfs/t1/96505/26/15113/79912/5e6ec8a5Eb6d8546c/0cc2d2120993ffaf.jpg">
+                    <img
+                      src="//img14.360buyimg.com/n7/jfs/t1/96505/26/15113/79912/5e6ec8a5Eb6d8546c/0cc2d2120993ffaf.jpg">
                   </div>
                   <div class="cart-item-title">
-                    <div class="item-name">{{item.productName}}</div>
+                    <div class="item-name">{{item.goodsName}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">{{item.productPrice}}</div>
+                  <div class="item-price">{{item.goodsPrice}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <el-input-number :step="1" v-model="item.productNum" @change="handleChange(item.productNum)":min="1" :max="101"></el-input-number>
+                        <el-input-number :step="1" v-model="item.count" @change="handleChange(item)" :min="1"
+                                         :max="item.goodsNum"></el-input-number>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">{{item.productPrice*item.productNum | currency}}</div>
+                  <div class="item-price-total">{{item.goodsPrice*item.count | currency}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
@@ -105,10 +107,12 @@
                 <a href="javascipt:;" @click="toggleCheckAll">
                 <span class="checkbox-btn item-check-btn" v-bind:class="{'check':checkAllFlag}">
                   <svg class="icon icon-ok">
-                    <use xlink:href="#icon-ok" /></svg>
+                    <use xlink:href="#icon-ok"/></svg>
                 </span>
                   <span>全选</span>
                 </a>
+                <span @click="deleteSelectGoods(cartList)">删除选中的物品</span>
+
               </div>
             </div>
             <div class="cart-foot-r">
@@ -129,14 +133,23 @@
         <p>你确认要删除此条数据吗?</p>
       </template>
       <template v-slot:btnGroup>
-        <a class="btn btn--m" href="javascript:;" @click="delCart">确认</a>
+        <a class="btn btn--m" href="javascript:;" v-on:click="delCart()">确认</a>
         <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm=false">关闭</a>
+      </template>
+    </modal>
+    <modal :mdShow="modalConfirmTwo" @close="closeModal">
+      <template v-slot:message>
+        <p>你确认要删除此条数据吗?</p>
+      </template>
+      <template v-slot:btnGroup>
+        <a class="btn btn--m" href="javascript:;" @click="deleteAllSelectedCart()">确认</a>
+        <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirmTwo=false">关闭</a>
       </template>
     </modal>
   </div>
 </template>
 <style scoped>
-  .itxt{
+  .itxt {
     text-align: center;
     font-size: 12px;
     color: #333;
@@ -149,121 +162,190 @@
   import NavHeader from '@/components/HeaderCommon.vue'
   import NavFooter from '@/components/Footer.vue'
   import Modal from '@/components/Modal.vue'
+
   export default {
     name: 'Cart',
-    data(){
-      return{
-        modalConfirm:false,
-        delItem:'',
-        cartList:[
-          {
-            productId:1,
-            productName:"哈哈鞋子",
-            productPrice: 100,
-            productNum:100,
-            checked: true
-
-          },
-          {
-            productId:2,
-            productName:"哈哈裤子",
-            productPrice: 100,
-            productNum:100,
-            checked: false
-
-          }
-        ]
+    data() {
+      return {
+        cartCount: 0,
+        isIds: false,
+        modalConfirm: false,
+        modalConfirmTwo: false,
+        delItem: '',
+        cartList: [],
+        skuIds: {
+          ids: []
+        },
+        selectList: [],
+        updateCartParam: {
+          isChecked: false,
+          isAllChecked: false,
+          isCount: false,
+          count: null,
+          skuId: null
+        }
       }
     },
-    components:{
+    components: {
       NavHeader,
       NavFooter,
       Modal
     },
-    mounted:function(){
+    mounted: function () {
       this.init();
     },
-    computed:{
-      checkAllFlag(){
-        return this.cartList.every((item)=>{
+    computed: {
+      checkAllFlag() {
+        return this.cartList.every((item) => {
           return item.checked;
         });
       },
-      checkedCount(){
-        return this.cartList.some((item)=>{
+      checkedCount() {
+        return this.cartList.some((item) => {
           return item.checked;
         })
       },
-      totalPrice(){
+      totalPrice() {
         let money = 0;
-        this.cartList.forEach((item)=>{
-          if(item.checked){
-            money += item.productPrice*item.productNum;
+        this.cartList.forEach((item) => {
+          if (item.checked) {
+            money += item.goodsPrice * item.count;
           }
         });
         return money;
       }
     },
-    filters:{
-      currency(value){
-        if(!value)return 0.00;
+    filters: {
+      currency(value) {
+        if (!value) return 0.00;
         return '￥' + value.toFixed(2) + '元';
       }
     },
-    methods:{
-      init(){
-        this.axios.get("/mock/cart.json").then((response)=>{
+    methods: {
+      init() {
+        this.$ajax.get("/api/cart/list").then((response) => {
           let res = response.data;
-          this.cartList = res.data;
+          this.cartList = res.result;
+          this.cartCount = this.cartList.length
+        })
+
+      },
+      editCart(type, item) {
+        if (type == 'add') {
+          item.count++;
+        } else if (type == 'minus') {
+          item.count--;
+        } else {
+          item.checked = !item.checked;
+          this.updateCartParam.isChecked = true
+          this.updateCartParam.isAllChecked = false
+          this.updateCartParam.isCount = false
+          this.updateCartParam.skuId = item.skuId
+          this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
+          })
+        }
+      },
+      allSelected() {
+        this.updateCartParam.isChecked = true
+        this.updateCartParam.isAllChecked = true
+        this.updateCartParam.isCount = false
+        this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
         })
       },
-      editCart(type,item){
-        if(type == 'add'){
-          item.productNum++;
-        }else if(type == 'minus'){
-          item.productNum--;
-        }else{
-          item.checked = !item.checked;
-        }
-      },
-      handleChange(item){
-        if(item<=0){
+      handleChange(item) {
+        if (item.count <= 0) {
           alert("购买数量不能小于0！")
-        }else if(item>101){
-          alert("购买数量超过了库存！")
-        }else{
-
+        } else if (item.count + 1 > item.goodsNum) {
+          this.$message({
+            message: "该商品限购" + item.goodsNum + "！",
+            duration: 2000
+          });
+          this.updateCartParam.isChecked = false
+          this.updateCartParam.isAllChecked = false
+          this.updateCartParam.isCount = true
+          this.updateCartParam.count = item.count
+          this.updateCartParam.skuId = item.skuId
+          this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
+          })
+        } else {
+          this.updateCartParam.isChecked = false
+          this.updateCartParam.isAllChecked = false
+          this.updateCartParam.isCount = true
+          this.updateCartParam.count = item.count
+          this.updateCartParam.skuId = item.skuId
+          this.$ajax.patch("/api/cart/updateCartInfo", this.updateCartParam).then(() => {
+          })
         }
 
       },
-      delCartConfirm(item){
+      deleteAllSelectedCart() {
+        this.cartList.forEach((item) => {
+          if (item.checked == 1) {
+            this.isIds = true;
+            this.skuIds.ids.push(item.skuId);
+            this.modalConfirmTwo = false;
+          }
+        });
+        this.modalConfirmTwo = false;
+
+        if (this.isIds) {
+          this.$ajax.post("/api/cart/allSelect", this.skuIds).then((response) => {
+            if (response.data.success) {
+              this.skuIds.ids = []
+              location.reload();
+            }
+          })
+        } else {
+          this.isIds = false;
+          alert("请至少选择一件商品！")
+        }
+      },
+      delCartConfirm(item) {
         this.delItem = item;
         this.modalConfirm = true;
-
       },
-      closeModal(){
+      deleteSelectGoods(itemList) {
+        this.selectList = itemList
+        this.modalConfirmTwo = true;
+      },
+      closeModal() {
         this.modalConfirm = false;
+        this.modalConfirmTwo = false;
       },
-      delCart(){
+      delCart() {
         let delItem = this.delItem;
-        this.cartList.forEach((item,index)=>{
-          if(delItem.productId == item.productId){
-            this.cartList.splice(index,1);
+        let cartId = this.delItem.skuId
+        this.cartList.forEach((item, index) => {
+          if (delItem.skuId == item.skuId) {
+            this.cartList.splice(index, 1);
             this.modalConfirm = false;
           }
         })
-      },
-      toggleCheckAll(){
-        let flag = !this.checkAllFlag;
-        this.cartList.forEach((item)=>{
-          item.checked = flag;
+        this.$ajax.delete("/api/cart/deleteCart/" + cartId).then((response) => {
+          if (response.data.success) {
+            location.reload();
+          }
         })
       },
-      checkOut(){
-        if(this.checkedCount){
-          this.$router.push({
-            path:'/address'
+      toggleCheckAll() {
+        let flag = !this.checkAllFlag;
+        this.cartList.forEach((item) => {
+          item.checked = flag;
+        })
+        this.allSelected()
+      },
+      checkOut() {
+        if (this.checkedCount) {
+          this.$ajax.get("/api/user/check").then((response) => {
+            if (response.data.success) {
+              this.$router.push({
+                path: '/address'
+              })
+            } else {
+            alert("请登录")
+            }
           })
+
         }
       }
     }

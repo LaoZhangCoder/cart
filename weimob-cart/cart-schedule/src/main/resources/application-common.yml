@@ -1,0 +1,19 @@
+# Dubbo Config properties
+dubbo:
+  application:
+    name: cart-dubbo
+  registry:
+    id: cart-registry
+    address: zookeeper://47.106.115.24:2181
+  consumer:
+    check: false
+    timeout: 10000
+  protocol:
+    name: dubbo
+    port: 26880
+
+
+spring:
+  redis:
+    host: 47.106.115.24
+    port: 6379
