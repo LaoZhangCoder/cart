@@ -1,5 +1,6 @@
 package cart.response;
 
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.util.function.Supplier;
  * @Author: 老张
  * @Date: 2020/3/27
  */
+@Data
  public class Response<T> implements Serializable {
     private static final long serialVersionUID = -750644833749014618L;
     private static final Logger logger = LoggerFactory.getLogger(Response.class);

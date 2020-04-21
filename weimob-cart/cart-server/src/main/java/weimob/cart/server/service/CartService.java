@@ -1,11 +1,10 @@
 package weimob.cart.server.service;
 
-import weimob.cart.api.request.CartInfoDeleteRequest;
-import weimob.cart.api.request.CartInfoListRemoveRequest;
-import weimob.cart.api.request.CartInfoUpdateRequest;
-import weimob.cart.api.request.MergeCartInfoRequest;
+import weimob.cart.api.request.*;
 import weimob.cart.server.domain.dto.CartInfoDto;
+import weimob.cart.server.domain.dto.CompensateMessageDto;
 import weimob.cart.server.query.CartInfosQuery;
+import weimob.cart.server.query.CompensateMessageUpdateQuery;
 
 import java.util.List;
 
@@ -49,5 +48,25 @@ public interface CartService {
      * @desicption: 删除购物车集合
      */
     String removeCartList(CartInfoListRemoveRequest request);
+
+    /**
+     * 模拟订单服务
+     * @param request
+     * @return
+     */
+    String submitCartOrder(OrderRequest request);
+
+    /**
+     * 查询购物车消息表
+     * @return
+     */
+    List<CompensateMessageDto> listCompensateMessageDto();
+
+    /**
+     * 更新购物车消息表
+     * @param query
+     * @return
+     */
+    String updateCompensateMessage(CompensateMessageUpdateQuery query);
 
 }

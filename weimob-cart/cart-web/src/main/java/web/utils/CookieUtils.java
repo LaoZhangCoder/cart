@@ -64,6 +64,17 @@ public class CookieUtils {
         return null;
     }
 
+    public static String getPasswordByCookie(Cookie[] cookies) {
+        if (cookies == null || cookies.length <= 0) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (CookieConstant.COOKIE_USER_NAME.equals(cookie.getName())) {
+                return cookie.getValue().substring(cookie.getValue().lastIndexOf(":")+1);
+            }
+        }
+        return null;
+    }
     public static void delCartCookie(HttpServletResponse response, String cookieName) {
         Cookie cookie = new Cookie(cookieName, null);
         cookie.setMaxAge(0);
@@ -72,7 +83,7 @@ public class CookieUtils {
     }
 
     public static void addCookie(HttpServletResponse response, UserInfoVo userInfoVo) {
-        Cookie cookie = new Cookie(CookieConstant.COOKIE_USER_NAME, userInfoVo.getUserId() + ":" + userInfoVo.getUserName());
+        Cookie cookie = new Cookie(CookieConstant.COOKIE_USER_NAME, userInfoVo.getUserId() + ":" + userInfoVo.getUserName()+":"+userInfoVo.getPassword());
         cookie.setPath("/");
         cookie.setMaxAge(CookieConstant.COOKIE_MAX_AGE_ONE_DAY);
         response.addCookie(cookie);

@@ -4,17 +4,23 @@ import cart.enums.MessageEnum;
 import cart.exception.ServiceException;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import weimob.cart.api.request.*;
 import weimob.cart.server.converter.CartInfoDtoConverter;
 import weimob.cart.server.dao.CartDao;
+import weimob.cart.server.dao.CompensateMessageDao;
 import weimob.cart.server.dao.GoodsDao;
 import weimob.cart.server.domain.dto.CartInfoDto;
+import weimob.cart.server.domain.dto.CompensateMessageDto;
 import weimob.cart.server.domain.model.CartDo;
+import weimob.cart.server.domain.model.CompensateMessageDo;
 import weimob.cart.server.domain.model.GoodsDo;
 import weimob.cart.server.manager.CartInfoManager;
+import weimob.cart.server.manager.OrderManager;
 import weimob.cart.server.query.CartInfosQuery;
+import weimob.cart.server.query.CompensateMessageUpdateQuery;
 import weimob.cart.server.service.CartService;
 
 import java.util.Collections;
@@ -36,6 +42,13 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartInfoManager cartInfoManager;
+
+    @Autowired
+    private OrderManager orderManager;
+
+    @Autowired
+    private CompensateMessageDao compensateMessageDao;
+
 
     @Autowired
     private GoodsDao goodsDao;
@@ -171,6 +184,7 @@ public class CartServiceImpl implements CartService {
         HashMap<String, Object> map = Maps.newHashMap();
         map.put("userId", request.getUserId());
         map.put("skuId", request.getSkuId());
+        map.put("checked", request.getChecked());
         Integer integer = cartDao.deletesByCondition(map);
         if (integer >= 1) {
             return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
@@ -187,6 +201,43 @@ public class CartServiceImpl implements CartService {
             cartDao.deletesByCondition(map);
         });
         return MessageEnum.OPERATION_FAIL.getReasonPhrase();
+    }
+
+    @Override
+    public String submitCartOrder(OrderRequest request) {
+        //这里模拟订单服务的
+        Boolean isSuccess = orderManager.createOrder(request);
+        if (isSuccess) {
+            return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
+        }
+        throw new ServiceException("Failed to create order! Please recreate");
+    }
+
+    @Override
+    public List<CompensateMessageDto> listCompensateMessageDto() {
+        List<CompensateMessageDo> list = compensateMessageDao.listAll();
+        if (list != null && !list.isEmpty()) {
+            return compensateMessageDtoConverter(list);
+        }
+        return null;
+    }
+
+    @Override
+    public String updateCompensateMessage(CompensateMessageUpdateQuery query) {
+        CompensateMessageDo compensateMessageDo = new CompensateMessageDo();
+        BeanUtils.copyProperties(query, compensateMessageDo);
+        Boolean update = compensateMessageDao.update(compensateMessageDo);
+        return MessageEnum.OPERATION_SUCCESS.getReasonPhrase();
+
+    }
+
+    private List<CompensateMessageDto> compensateMessageDtoConverter(List<CompensateMessageDo> list) {
+        List<CompensateMessageDto> collect = list.stream().map(compensateMessageDo -> {
+            CompensateMessageDto compensateMessageDto = new CompensateMessageDto();
+            BeanUtils.copyProperties(compensateMessageDo, compensateMessageDto);
+            return compensateMessageDto;
+        }).collect(Collectors.toList());
+        return collect;
     }
 
     private CartDo getCartDo(CartInfoUpdateRequest request, HashMap<String, Object> map) {

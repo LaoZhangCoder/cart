@@ -168,7 +168,7 @@
     data() {
       return {
         cartCount: 0,
-        isIds:false,
+        isIds: false,
         modalConfirm: false,
         modalConfirmTwo: false,
         delItem: '',
@@ -296,52 +296,59 @@
             }
           })
         } else {
-          this.isIds=false;
+          this.isIds = false;
           alert("请至少选择一件商品！")
         }
       },
-    delCartConfirm(item) {
-      this.delItem = item;
-      this.modalConfirm = true;
-    },
-    deleteSelectGoods(itemList) {
-      this.selectList = itemList
-      this.modalConfirmTwo = true;
-    },
-    closeModal() {
-      this.modalConfirm = false;
-      this.modalConfirmTwo = false;
-    },
-    delCart() {
-      let delItem = this.delItem;
-      let cartId = this.delItem.skuId
-      this.cartList.forEach((item, index) => {
-        if (delItem.skuId == item.skuId) {
-          this.cartList.splice(index, 1);
-          this.modalConfirm = false;
-        }
-      })
-      this.$ajax.delete("/api/cart/deleteCart/" + cartId).then((response) => {
-        if (response.data.success) {
-          location.reload();
-        }
-      })
-    },
-    toggleCheckAll() {
-      let flag = !this.checkAllFlag;
-      this.cartList.forEach((item) => {
-        item.checked = flag;
-      })
-      this.allSelected()
-    },
-    checkOut() {
-      if (this.checkedCount) {
-        this.$router.push({
-          path: '/address'
+      delCartConfirm(item) {
+        this.delItem = item;
+        this.modalConfirm = true;
+      },
+      deleteSelectGoods(itemList) {
+        this.selectList = itemList
+        this.modalConfirmTwo = true;
+      },
+      closeModal() {
+        this.modalConfirm = false;
+        this.modalConfirmTwo = false;
+      },
+      delCart() {
+        let delItem = this.delItem;
+        let cartId = this.delItem.skuId
+        this.cartList.forEach((item, index) => {
+          if (delItem.skuId == item.skuId) {
+            this.cartList.splice(index, 1);
+            this.modalConfirm = false;
+          }
         })
+        this.$ajax.delete("/api/cart/deleteCart/" + cartId).then((response) => {
+          if (response.data.success) {
+            location.reload();
+          }
+        })
+      },
+      toggleCheckAll() {
+        let flag = !this.checkAllFlag;
+        this.cartList.forEach((item) => {
+          item.checked = flag;
+        })
+        this.allSelected()
+      },
+      checkOut() {
+        if (this.checkedCount) {
+          this.$ajax.get("/api/user/check").then((response) => {
+            if (response.data.success) {
+              this.$router.push({
+                path: '/address'
+              })
+            } else {
+            alert("请登录")
+            }
+          })
+
+        }
       }
     }
-  }
 
   }
 </script>

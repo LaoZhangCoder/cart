@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="CartDo">
-    <resultMap id="BaseResultMap" type="CartDo">
-        <id column="id" property="id" jdbcType="INTEGER"/>
-        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
-        <result column="sku_id" property="skuId" jdbcType="INTEGER"/>
-        <result column="count" property="count" jdbcType="INTEGER"/>
-        <result column="checked" property="checked" jdbcType="TINYINT"/>
+<mapper namespace="CompensateMessageDo">
+    <resultMap id="BaseResultMap" type="CompensateMessageDo">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="context" property="context" jdbcType="VARCHAR"/>
+        <result column="msg_id" property="msgId" jdbcType="VARCHAR"/>
+        <result column="biz_type" property="bizType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
         <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
         <result column="update_date" property="updateDate" jdbcType="TIMESTAMP"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, user_id, sku_id, count,checked, create_date,update_date
+        id, context, msg_id, status, create_date,update_date
     </sql>
     <sql id="criteria">
         <where>
-            <if test="userId != null">AND user_id=#{userId}</if>
-            <if test="skuId != null">AND sku_id=#{skuId}</if>
-            <if test="checked !=null">AND checked=#{checked}</if>
+        and status=0
         </where>
     </sql>
-    <sql id="table_name">cart</sql>
+    <sql id="table_name">compensate_message</sql>
     <select id="list" parameterType="map" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -40,37 +38,29 @@
         <include refid="table_name"/>
         <include refid="criteria"/>
     </delete>
-    <insert id="creates">
-        insert into
-        <include refid="table_name"/>
-        (user_id, sku_id, count,checked, create_date,update_date) values
-        <foreach item="item" collection="list" separator=",">
-            (#{item.userId}, #{item.skuId}, #{item.count}, #{item.checked}, #{item.createDate}, #{item.updateDate})
-        </foreach>
-    </insert>
-    <insert id="create" parameterType="CartDo">
+    <insert id="create" parameterType="CompensateMessageDo">
         insert into
         <include refid="table_name"/>
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
             </if>
-            <if test=" userId != null">
-                user_id,
+            <if test=" context != null">
+                context,
             </if>
-            <if test=" skuId != null">
-                sku_id,
+            <if test=" msgId != null">
+                msg_id,
             </if>
-            <if test=" count != null">
-                count,
+            <if test=" bizType != null">
+                biz_type,
             </if>
-            <if test=" checked != null">
-                checked,
+            <if test=" status != null">
+                status,
             </if>
-            <if test=" create_date != null">
+            <if test=" createDate != null">
                 create_date,
             </if>
-            <if test=" update_date != null">
+            <if test=" updateDate != null">
                 update_date,
             </if>
         </trim>
@@ -78,17 +68,17 @@
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
             </if>
-            <if test="userId != null">
-                #{userId,jdbcType=VARCHAR},
+            <if test="context != null">
+                #{context,jdbcType=VARCHAR},
             </if>
-            <if test="skuId != null">
-                #{skuId,jdbcType=BIGINT},
+            <if test="msgId != null">
+                #{msgId,jdbcType=BIGINT},
             </if>
-            <if test="count != null">
-                #{count,jdbcType=Integer},
+            <if test="bizType != null">
+                #{bizType,jdbcType=VARCHAR},
             </if>
-            <if test="checked != null">
-                #{checked,jdbcType=Integer},
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
             </if>
             <if test="createDate != null">
                 #{createDate,jdbcType=TIMESTAMP},
@@ -98,14 +88,15 @@
             </if>
         </trim>
     </insert>
-    <update id="update" parameterType="CartDo">
+    <update id="update" parameterType="CompensateMessageDo">
         UPDATE
         <include refid="table_name"/>
         <set>
             <if test="id != null">`id` = #{id},</if>
-            <if test="userId != null">`user_id` = #{userId},</if>
-            <if test="count != null">`count` = #{count},</if>
-            <if test="checked != null">`checked` = #{checked},</if>
+            <if test="context != null">`context` = #{context},</if>
+            <if test="msgId != null">`msg_id` = #{msgId},</if>
+            <if test="bizType != null">`biz_type` = #{bizType},</if>
+            <if test="status != null">`status` = #{status},</if>
             <if test="createDate != null">`create_date` = #{createDate},</if>
             <if test="updateDate != null">`update_date` = #{updateDate},</if>
         </set>

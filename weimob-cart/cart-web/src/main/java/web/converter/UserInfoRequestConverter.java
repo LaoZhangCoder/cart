@@ -15,4 +15,10 @@ public class UserInfoRequestConverter {
         userInfoRequest.setPhoneNumber(query.getPhoneNumber());
         return userInfoRequest;
     }
+    public static UserInfoRequest getUserInfoRequest(String userName,String password) {
+        UserInfoRequest userInfoRequest = new UserInfoRequest();
+        userInfoRequest.setPassword(password);
+        userInfoRequest.setPhoneNumber(userName);
+        return userInfoRequest;
+    }
 }

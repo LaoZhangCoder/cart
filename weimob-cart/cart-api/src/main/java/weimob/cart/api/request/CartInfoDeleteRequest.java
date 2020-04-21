@@ -25,9 +25,13 @@ public class CartInfoDeleteRequest extends AbstractRequest implements Serializab
      */
     private String userId;
 
+    /**
+     * 是否勾选
+     */
+    private Integer checked;
+
     @Override
     public void checkParam() {
-        ParamUtil.nonNull(skuId, "商品id不能为空");
         ParamUtil.isBlank(userId, "用户id不能为空");
     }
 }

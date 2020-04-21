@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import web.constants.CookieConstant;
+import web.constants.RedisConstant;
 import web.converter.MergeCartInfoRequestConverter;
 import web.converter.UserInfoRequestConverter;
 import web.converter.UserInfoVoResponseConverter;
@@ -34,6 +35,10 @@ public class UserController {
     private UserInfoServiceReadFacade userInfoServiceReadFacade;
     @Reference
     private CartInfoServiceWriteFacade cartInfoServiceWriteFacade;
+
+    @Autowired
+    private RedisClientUtils redisClientUtils;
+
     @PostMapping(value = "login")
     public Response<UserInfoVo> checkLogin(@RequestBody UserLoginQuery query, HttpServletRequest request, HttpServletResponse response) {
         Response<UserInfoVo> userInfoVoResponse = new Response<>();
@@ -41,11 +46,24 @@ public class UserController {
         Response<UserInfo> userInfo = userInfoServiceReadFacade.getUserInfo(userInfoRequest);
         if (userInfo.isSuccess()) {
             //用户登录成功即合并本地cookie购物车数据
-            // 合并的时候禁止用户添加商品到购物车因此加锁
             return getUserInfoVoResponse(request, response, userInfoVoResponse, userInfo);
         }
         userInfoVoResponse.setError(userInfo.getError());
         return userInfoVoResponse;
+    }
+
+    @GetMapping(value = "check")
+    public Response<String> isLogin(HttpServletRequest request) {
+        boolean isLogin = CookieUtils.isLogin(request.getCookies());
+        if (isLogin) {
+            UserInfoRequest userInfoRequest = UserInfoRequestConverter.getUserInfoRequest(CookieUtils.getUserIdByCookie(request.getCookies()), CookieUtils.getPasswordByCookie(request.getCookies()));
+            Response<UserInfo> userInfo = userInfoServiceReadFacade.getUserInfo(userInfoRequest);
+            if (userInfo.isSuccess()) {
+                return Response.ok("user login is success!");
+            }
+            return Response.fail("userName or password is error!");
+        }
+        return Response.fail("please sign in!");
     }
 
     private Response<UserInfoVo> getUserInfoVoResponse(HttpServletRequest request, HttpServletResponse response, Response<UserInfoVo> userInfoVoResponse, Response<UserInfo> userInfo) {
@@ -55,6 +73,7 @@ public class UserController {
         //合并cookie
         boolean excludeCart = CookieUtils.isExcludeCookieCart(request.getCookies());
         if (excludeCart) {
+            redisClientUtils.deleteCache(RedisConstant.KEY,userInfoVo.getUserId());
             MergeCartInfoRequest mergeCartInfoRequest = MergeCartInfoRequestConverter.mergeCartInfoRequest(userInfoVo.getUserId(), CookieUtils.getCartCookieValue(request.getCookies()));
             Response<Boolean> result = cartInfoServiceWriteFacade.mergeCartInfo(mergeCartInfoRequest);
             if (result.getResult()) {

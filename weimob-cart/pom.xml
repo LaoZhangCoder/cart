@@ -11,6 +11,7 @@
         <module>cart-web</module>
         <module>cart-web-starter</module>
         <module>cart-common</module>
+        <module>cart-schedule</module>
     </modules>
     <groupId>weimob.cart</groupId>
     <artifactId>cart</artifactId>

@@ -10,9 +10,10 @@ import java.util.List;
  */
 public interface CartInfoServiceReadFacade {
     /**
+     * 获取用户购物车列表
      * @param userId
      * @return
-     * @description: 获取用户购物车列表
+     *
      */
     Response<List<CartInfo>> listCartInfos(String userId);
 }

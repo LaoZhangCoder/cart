@@ -18,10 +18,7 @@ import web.utils.RedisClientUtils;
 import weimob.cart.api.facade.CartInfoServiceReadFacade;
 import weimob.cart.api.facade.CartInfoServiceWriteFacade;
 import weimob.cart.api.facade.GoodsServiceReadFacade;
-import weimob.cart.api.request.CartInfoDeleteRequest;
-import weimob.cart.api.request.CartInfoListRemoveRequest;
-import weimob.cart.api.request.CartInfoUpdateRequest;
-import weimob.cart.api.request.MergeCartInfoRequest;
+import weimob.cart.api.request.*;
 import weimob.cart.api.response.CartInfo;
 import weimob.cart.api.response.GoodsInfo;
 
@@ -160,6 +157,13 @@ public class CartController {
         String cookieValue = cartCookieHandle.deleteCartByIds(cartInfoVoList, skuIds.getIds());
         CookieUtils.addCookie(response, cookieValue);
         return Response.ok(MessageEnum.OPERATION_SUCCESS.getReasonPhrase());
+    }
+
+    @PostMapping(value = "submit")
+    public Response<String> submitCart(HttpServletRequest request) {
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setUserId(CookieUtils.getUserIdByCookie(request.getCookies()));
+        return cartInfoServiceWriteFacade.submitCartOrder(orderRequest);
     }
 
 }
